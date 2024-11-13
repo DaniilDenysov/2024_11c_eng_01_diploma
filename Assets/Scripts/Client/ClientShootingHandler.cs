@@ -1,36 +1,53 @@
 using Mirror;
 using ShootingSystem.Server;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Zenject;
 
 namespace ShootingSystem.Client
 {
-    //controller
+    // Controller
     public class ClientShootingHandler : NetworkBehaviour
     {
         [SerializeField] private Transform shootingPoint;
-        [SerializeField] private ServerShootingHandler serverShootingHandler;
+        private DefaultInput inputActions;
+        [SerializeField] private Camera mainCamera;
 
-        [Inject]
-        public void Construct (ServerShootingHandler serverShootingHandler)
+        private void Start()
         {
-            this.serverShootingHandler = serverShootingHandler;
+            Construct();
         }
+
+        public void Construct()
+        {
+            inputActions = new DefaultInput();
+            inputActions.Enable();
+            inputActions.Player.Shoot.performed += OnShoot;
+        }
+
         #region Commands
-        #endregion
-
-        #region Callbacks
-
+        [Command]
+        public void CmdShoot(Vector3 position, Vector3 direction)
+        {
+            ServerShootingHandler.Instance.CmdShoot(position, direction);
+        }
         #endregion
 
         #region InputHandling
-        public void OnShoot ()
+        private void OnShoot(InputAction.CallbackContext obj)
         {
-            //add handling for pressings
-            Debug.Log("Client shooted");
-            serverShootingHandler.CmdShoot(shootingPoint.position,transform.forward);
+            if (mainCamera == null)
+            {
+                Debug.LogWarning("Main camera not found. Unable to determine shooting direction.");
+                return;
+            }
+            Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, mainCamera.nearClipPlane));
+            Vector3 shootingDirection = (mouseWorldPosition - shootingPoint.position).normalized;
+            Debug.Log(shootingDirection);
+            CmdShoot(shootingPoint.position, shootingDirection);
         }
         #endregion
     }

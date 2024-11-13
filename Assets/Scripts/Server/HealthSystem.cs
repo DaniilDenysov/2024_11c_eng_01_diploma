@@ -30,15 +30,19 @@ namespace HealthSystem
                 _armorSystem.DoDamage(damage);
                 return;
             }
-            _currentHealth = _healthSlider.GetCurrentValue() - damage;
-            _healthSlider.SetCurrentValue(_currentHealth);
 
-            Debug.Log($"Remaining Health: {_currentHealth}");
-
-            if (_currentHealth <= 0)
+            if (_currentHealth - damage <= 0)
             {
                 _currentHealth = 0;
             }
+            else
+            {
+                _currentHealth = _healthSlider.GetCurrentValue() - damage;
+            }
+
+            _healthSlider.SetCurrentValue(_currentHealth);
+
+            Debug.Log($"Remaining Health: {_currentHealth}");
         }
 
         [Server]

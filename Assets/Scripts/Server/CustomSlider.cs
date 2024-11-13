@@ -15,7 +15,7 @@ namespace HealthSystem
         [SerializeField] private Image backgroundImage;
 
         [SerializeField][Range(0, float.MaxValue)] private float maxValue = 100f;
-        [SyncVar,SerializeField,Range(0, float.MaxValue)] private float currentValue = 100f;
+        [SerializeField,Range(0, float.MaxValue)] private float currentValue = 100f;
         [SerializeField][Range(0, float.MaxValue)] private float speed = 5f;
         [SerializeField] [Range(0, 1f)] private float fadeInTimer = 0.5f;
         [SerializeField] [Range(0, 1f)] private float fadeOutTimer = 0.5f;
@@ -54,11 +54,16 @@ namespace HealthSystem
         /// <returns>The maximum value.</returns>
         public float GetMaxValue() => maxValue;
 
+        private void OnValueChanged (float oldValue, float newValue)
+        {
+
+        }
+
         /// <summary>
         /// Sets the current value of the slider.
         /// </summary>
         /// <param name="value">The new value to set.</param>
-        [Server]
+        [ClientRpc]
         public void SetCurrentValue(float value)
         {
             SetCurrentValueWithoutNotification(value);
@@ -71,7 +76,7 @@ namespace HealthSystem
             
         }
 
-        [Server]
+        [ClientRpc]
         public void SetCurrentValueWithoutNotification(float value)
         {
             currentValue = Mathf.Clamp(value, 0, maxValue);
