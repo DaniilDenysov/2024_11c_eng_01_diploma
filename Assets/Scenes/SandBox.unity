@@ -431,9 +431,14 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  lastSyncTime: 0
+  <netIdentity>k__BackingField: {fileID: 0}
+  <ComponentIndex>k__BackingField: 0
+  syncVarDirtyBits: 0
+  syncObjectDirtyBits: 0
+  syncVarHookGuard: 0
   dontDestroyOnLoad: 0
   hitLayers:
-    serializedVersion: 2
     m_Bits: 4294967295
   maxShootDistance: 1000
   damageAmount: 10
@@ -466,6 +471,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: WorldUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592389039496241413, guid: 6ecccabdda69a4d4da85dabb5c717e98,
+        type: 3}
+      propertyPath: maxValue
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592389039496241413, guid: 6ecccabdda69a4d4da85dabb5c717e98,
+        type: 3}
+      propertyPath: currentValue
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8355726815670313602, guid: 6ecccabdda69a4d4da85dabb5c717e98,
         type: 3}

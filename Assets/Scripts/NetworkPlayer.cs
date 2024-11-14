@@ -5,14 +5,14 @@ using UnityEngine;
 
 public class NetworkPlayer : NetworkBehaviour
 {
-    [SerializeField] private Camera camera;
+    [SerializeField] private GameObject localPlayerInterfaces;
 
 
     private void Start()
     {
         if (!isOwned)
         {
-            Destroy(camera.gameObject);
+            Destroy(localPlayerInterfaces);
         }
     }
 
