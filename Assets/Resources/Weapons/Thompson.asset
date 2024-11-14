@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f32c9afc7595e5943a95f24dcaf8bccf, type: 3}
   m_Name: Thompson
   m_EditorClassIdentifier: 
+  bulletHole: {fileID: 4177217897757443056, guid: 30d235f6e4c324d4db5ebcc2a4d3e289,
+    type: 3}
   fireRate: 0.4
   damage: 10
   distance: 1000
-  burst: 2
-  bulletsPerShot: 2
+  burst: 1
+  bulletsPerShot: 1
   mode: 1
+  rangeX: 0.01
+  rangeY: 0.01
   scopeTime: 3
   mag: {fileID: 11400000, guid: 321a724362cdcc043831aad74f390f71, type: 2}

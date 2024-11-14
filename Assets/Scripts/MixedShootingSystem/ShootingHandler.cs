@@ -17,10 +17,9 @@ namespace ShootingSystem.Client
         private DefaultInput inputActions;
         [SerializeField] private Camera mainCamera;
         [SerializeField] private TMP_Text magDisplay;
-
-        [SyncVar] private float lastTimeFired;
-        [SyncVar(hook = nameof(UpdateMagDisplay))] private int currentBullets;
-        [SyncVar] private bool isFiring;
+        private float lastTimeFired;
+        private int currentBullets;
+        private bool isFiring;
 
         private void Start()
         {
@@ -47,27 +46,34 @@ namespace ShootingSystem.Client
             inputActions.Player.Shoot.started += OnShootInputStarted;
             inputActions.Player.Shoot.performed += OnShootInputStarted;
             inputActions.Player.Shoot.canceled += OnShootInputCanceled;
-            lastTimeFired = -weapon.GetFireRate();
-            currentBullets = weapon.GetMag().GetMaxBullets();
+            lastTimeFired = -weapon.FireRate;
+            currentBullets = weapon.Mag.GetMaxBullets();
         }
 
         #region Callbacks
-        private void UpdateMagDisplay(int oldCurrentBullets, int newCurrentBullets)
+        private void UpdateMagDisplay()
         {
-            magDisplay.text = $"{newCurrentBullets}/{weapon.GetMag().GetMaxBullets()}";
+            magDisplay.text = $"{currentBullets}/{weapon.Mag.GetMaxBullets()}";
         }
         #endregion
 
         #region Commands
         [Command]
-        public void CmdShoot(Vector3 position, Vector3 direction)
+        public void CmdShootRaycast(Vector3 from, Vector3 direction, NetworkConnectionToClient conn = null)
         {
-            int bulletsShooted = Mathf.Min(currentBullets, weapon.GetBulletsPerShot());
-            currentBullets-=bulletsShooted;
-            lastTimeFired = Time.time;
-            for (int i = 0; i<bulletsShooted;i++)
+            direction = direction.normalized;
+            if (TryShoot(from, direction, out RaycastHit hit))
             {
-                ShootRaycast(position, direction);
+                if (hit.collider.TryGetComponent(out IDamagable damagable))
+                {
+                    damagable.DoDamage(weapon.Damage);
+                }
+                SpawnBulletHole(hit.collider.gameObject,hit.point,hit.normal);
+                RpcOnShoot(from, hit.point);
+            }
+            else
+            {
+                RpcOnShoot(from, direction.normalized * weapon.Distance);
             }
         }
         #endregion
@@ -78,12 +84,37 @@ namespace ShootingSystem.Client
         {
             Debug.DrawLine(from, hitPoint, Color.red, 5.0f);
         }
+
+        [ClientRpc]
+        private void SpawnBulletHole(GameObject parent, Vector3 holePosition, Vector3 normal)
+        {
+            if (weapon.BulletHole == null)
+            {
+                Debug.LogWarning("No bullet hole prefab assigned in the weapon data.");
+                return;
+            }
+            Quaternion holeRotation = Quaternion.LookRotation(normal);
+            Vector3 offsetPosition = holePosition + normal * 0.01f; 
+
+            GameObject hole;
+            if (parent != null)
+            {
+                hole = Instantiate(weapon.BulletHole, offsetPosition, holeRotation);
+                hole.transform.SetParent(parent.transform, worldPositionStays: true);
+                hole.transform.localScale = Vector3.one;
+            }
+            else
+            {
+                hole = Instantiate(weapon.BulletHole, offsetPosition, holeRotation);
+            }
+        }
+
         #endregion
 
         #region InputHandling
         private void OnShootInputStarted(InputAction.CallbackContext context)
         {
-            if (weapon.GetFireMode() == WeaponSO.ShootingMode.Press)
+            if (weapon.Mode == WeaponSO.ShootingMode.Press)
             {
                 Shoot();
             }
@@ -101,23 +132,6 @@ namespace ShootingSystem.Client
         #endregion
 
         #region Server
-        [Server]
-        public void ShootRaycast(Vector3 from, Vector3 direction, NetworkConnectionToClient conn = null)
-        {
-            direction = direction.normalized;
-            if (TryShoot(from, direction, out RaycastHit hit))
-            {
-                if (hit.collider.TryGetComponent(out IDamagable damagable))
-                {
-                    damagable.DoDamage(weapon.GetDamage());
-                }
-                RpcOnShoot(from, hit.point);
-            }
-            else
-            {
-                RpcOnShoot(from, direction.normalized * weapon.GetDistance());
-            }
-        }
         #endregion
 
 
@@ -125,13 +139,13 @@ namespace ShootingSystem.Client
         #region Local
         private bool CanShoot()
         {
-            return (lastTimeFired + weapon.GetFireRate() <= Time.time) && (currentBullets > 0);
+            return (lastTimeFired + weapon.FireRate <= Time.time) && (currentBullets > 0);
         }
 
 
         public bool TryShoot(Vector3 from, Vector3 direction, out RaycastHit raycastHit)
         {
-            return Physics.Raycast(from, direction, out raycastHit, weapon.GetDistance(), hitLayers);
+            return Physics.Raycast(from, direction, out raycastHit, weapon.Distance, hitLayers);
         }
 
         private void Shoot()
@@ -144,8 +158,16 @@ namespace ShootingSystem.Client
             if (!CanShoot()) return;
 
             Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, mainCamera.nearClipPlane));
+            mouseWorldPosition += new Vector3(Random.Range(-weapon.RangeX,weapon.RangeX), Random.Range(-weapon.RangeY, weapon.RangeY));
             Vector3 shootingDirection = (mouseWorldPosition - shootingPoint.position).normalized;
-            CmdShoot(shootingPoint.position, shootingDirection);
+            int bulletsShooted = Mathf.Min(currentBullets, weapon.BulletsPerShot);
+            currentBullets -= bulletsShooted;
+            lastTimeFired = Time.time;
+            UpdateMagDisplay();
+            for (int i = 0; i < bulletsShooted; i++)
+            {
+                CmdShootRaycast(mouseWorldPosition, shootingDirection);
+            }
         }
 
         private void OnDestroy()

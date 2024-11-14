@@ -36,7 +36,7 @@ namespace ShootingSystem.Client
         private void Update()
         {
             if (!isFiring) return;
-            if (lastTimeFired + weapon.GetFireRate() >= Time.time) return;
+            if (lastTimeFired + weapon.FireRate >= Time.time) return;
             if (currentBullets <= 0) return;
             Shoot();
         }
@@ -48,14 +48,14 @@ namespace ShootingSystem.Client
             inputActions.Player.Shoot.started += OnShootInput;
             inputActions.Player.Shoot.performed += OnShootInput;
             inputActions.Player.Shoot.canceled += OnShootInput;
-            lastTimeFired = -weapon.GetFireRate();
-            currentBullets = weapon.GetMag().GetMaxBullets();
+            lastTimeFired = -weapon.FireRate;
+            currentBullets = weapon.Mag.GetMaxBullets();
         }
 
         #region Callbacks
         private void UpdateMagDisplay(float oldCurrentBullets, float newCurrentBullets)
         {
-            magDisplay.text = $"{newCurrentBullets}/{weapon.GetMag().GetMaxBullets()}";
+            magDisplay.text = $"{newCurrentBullets}/{weapon.Mag.GetMaxBullets()}";
         }
         #endregion
 
@@ -81,11 +81,11 @@ namespace ShootingSystem.Client
 
             if (context.phase == InputActionPhase.Started && InputTypeHandled(context))
             {
-                if (weapon.GetFireMode() == WeaponSO.ShootingMode.Press)
+                if (weapon.Mode == WeaponSO.ShootingMode.Press)
                 {
                     Shoot();
                 }
-                else if (weapon.GetFireMode() == WeaponSO.ShootingMode.Hold)
+                else if (weapon.Mode == WeaponSO.ShootingMode.Hold)
                 {
                     isFiring = true;
                 }
@@ -100,11 +100,11 @@ namespace ShootingSystem.Client
         {
             if (context.phase == InputActionPhase.Performed && context.duration > 0.2f)
             {
-                return weapon.GetFireMode() == WeaponSO.ShootingMode.Hold;
+                return weapon.Mode == WeaponSO.ShootingMode.Hold;
             }
 
             return context.phase == InputActionPhase.Started &&
-                   (weapon.GetFireMode() == WeaponSO.ShootingMode.Press);
+                   (weapon.Mode == WeaponSO.ShootingMode.Press);
         }
         #endregion
 

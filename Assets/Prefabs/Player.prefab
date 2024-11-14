@@ -281,6 +281,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6829403427450931476}
   - component: {fileID: 8018123161978201474}
+  - component: {fileID: 8304162279013844614}
   m_Layer: 0
   m_Name: Virtual Camera
   m_TagString: Untagged
@@ -343,6 +344,29 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 3334410548833219077}
+--- !u!114 &8304162279013844614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5011499342118547586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2d199b96b516448144ab30fb26aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ApplyAfter: 2
+  m_ChannelMask: 1
+  m_Gain: 1
+  m_Use2DDistance: 0
+  m_UseCameraSpace: 1
+  m_ReactionSettings:
+    m_SecondaryNoise: {fileID: 0}
+    m_AmplitudeGain: 1
+    m_FrequencyGain: 1
+    m_Duration: 1
+    m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1 &6517930127787815001
 GameObject:
   m_ObjectHideFlags: 0
@@ -847,6 +871,7 @@ MonoBehaviour:
   shootingPoint: {fileID: 4768168765381117761}
   mainCamera: {fileID: 1271712466031110168}
   magDisplay: {fileID: 3744217781901145206}
+  impulseSource: {fileID: 0}
 --- !u!136 &7846583136030236853
 CapsuleCollider:
   m_ObjectHideFlags: 0
