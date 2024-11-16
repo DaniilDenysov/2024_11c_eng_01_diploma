@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletHole: {fileID: 4177217897757443056, guid: 30d235f6e4c324d4db5ebcc2a4d3e289,
     type: 3}
-  fireRate: 0.4
+  leftGrip: {x: 0, y: 0, z: 0}
+  rightGrip: {x: 0, y: 0, z: 0}
+  mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+  fireRate: 0.1
   damage: 10
   distance: 1000
   burst: 1

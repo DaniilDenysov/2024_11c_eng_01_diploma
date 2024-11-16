@@ -44,6 +44,24 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MainWeapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""08f68384-228d-4cad-98e3-e4ded2937665"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SecondaryWeapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""a1dc543c-ad55-412a-8342-60e2adc30e38"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -68,6 +86,28 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""action"": ""Reload"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7d66042d-a3a1-4936-b30d-90a84bdba0e7"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MainWeapon"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""572ac707-4609-47ec-8042-e8b3c6d210d5"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SecondaryWeapon"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -78,6 +118,8 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Shoot = m_Player.FindAction("Shoot", throwIfNotFound: true);
         m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
+        m_Player_MainWeapon = m_Player.FindAction("MainWeapon", throwIfNotFound: true);
+        m_Player_SecondaryWeapon = m_Player.FindAction("SecondaryWeapon", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -141,12 +183,16 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Shoot;
     private readonly InputAction m_Player_Reload;
+    private readonly InputAction m_Player_MainWeapon;
+    private readonly InputAction m_Player_SecondaryWeapon;
     public struct PlayerActions
     {
         private @DefaultInput m_Wrapper;
         public PlayerActions(@DefaultInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @Shoot => m_Wrapper.m_Player_Shoot;
         public InputAction @Reload => m_Wrapper.m_Player_Reload;
+        public InputAction @MainWeapon => m_Wrapper.m_Player_MainWeapon;
+        public InputAction @SecondaryWeapon => m_Wrapper.m_Player_SecondaryWeapon;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -162,6 +208,12 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Reload.started += instance.OnReload;
             @Reload.performed += instance.OnReload;
             @Reload.canceled += instance.OnReload;
+            @MainWeapon.started += instance.OnMainWeapon;
+            @MainWeapon.performed += instance.OnMainWeapon;
+            @MainWeapon.canceled += instance.OnMainWeapon;
+            @SecondaryWeapon.started += instance.OnSecondaryWeapon;
+            @SecondaryWeapon.performed += instance.OnSecondaryWeapon;
+            @SecondaryWeapon.canceled += instance.OnSecondaryWeapon;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -172,6 +224,12 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Reload.started -= instance.OnReload;
             @Reload.performed -= instance.OnReload;
             @Reload.canceled -= instance.OnReload;
+            @MainWeapon.started -= instance.OnMainWeapon;
+            @MainWeapon.performed -= instance.OnMainWeapon;
+            @MainWeapon.canceled -= instance.OnMainWeapon;
+            @SecondaryWeapon.started -= instance.OnSecondaryWeapon;
+            @SecondaryWeapon.performed -= instance.OnSecondaryWeapon;
+            @SecondaryWeapon.canceled -= instance.OnSecondaryWeapon;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -193,5 +251,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
     {
         void OnShoot(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
+        void OnMainWeapon(InputAction.CallbackContext context);
+        void OnSecondaryWeapon(InputAction.CallbackContext context);
     }
 }

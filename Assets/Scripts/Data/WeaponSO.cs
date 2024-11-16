@@ -5,10 +5,17 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Weapon", menuName = "create new weapon")]
 public class WeaponSO : ScriptableObject
 {
-
+    [Header("View")]
     [SerializeField] private GameObject bulletHole;
     public GameObject BulletHole { get => bulletHole; private set { } }
+    [SerializeField] private Vector3 leftGrip;
+    public Vector3 GetLeftGrip() => leftGrip;
+    [SerializeField] private Vector3 rightGrip;
+    public Vector3 GetRightGrip() => rightGrip;
+    [SerializeField] private Mesh mesh;
+    public Mesh GetMesh() => mesh;
 
+    [Header("Stats")]
     [SerializeField, Range(0, 1000)] private float fireRate;
     public float FireRate { get => fireRate; private set { } }
 

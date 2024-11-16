@@ -1,25 +1,20 @@
-using Cinemachine;
 using Mirror;
 using ShootingSystem.Local;
 using System.Collections;
-using TMPro;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Zenject;
 
-namespace ShootingSystem.Client
-{
-    public class ShootingHandler : NetworkBehaviour
+namespace ShootingSystem
+{ 
+    public class WeaponController : NetworkBehaviour
     {
-        [SerializeField] private LayerMask hitLayers;
-        [SerializeField] private WeaponSO weapon;
-        [SerializeField] private Transform shootingPoint;
-        private DefaultInput inputActions;
         [SerializeField] private Camera mainCamera;
-        [SerializeField] private TMP_Text magDisplay;
-        private float lastTimeFired;
-        private int currentBullets;
+        [SerializeField] private WeaponView view;
+        [SerializeField] private WeaponModel model;
+        private DefaultInput inputActions;
         private bool isFiring;
+        private float lastTimeFired;
 
         private void Start()
         {
@@ -46,16 +41,11 @@ namespace ShootingSystem.Client
             inputActions.Player.Shoot.started += OnShootInputStarted;
             inputActions.Player.Shoot.performed += OnShootInputStarted;
             inputActions.Player.Shoot.canceled += OnShootInputCanceled;
-            lastTimeFired = -weapon.FireRate;
-            currentBullets = weapon.Mag.GetMaxBullets();
+            inputActions.Player.MainWeapon.performed += OnMainWeaponSelected;
+            inputActions.Player.SecondaryWeapon.performed += OnSecondaryWeaponSelected;
+            lastTimeFired = -model.GetWeaponSO().FireRate;
+            model.CurrentBullets = model.GetWeaponSO().Mag.GetMaxBullets();
         }
-
-        #region Callbacks
-        private void UpdateMagDisplay()
-        {
-            magDisplay.text = $"{currentBullets}/{weapon.Mag.GetMaxBullets()}";
-        }
-        #endregion
 
         #region Commands
         [Command]
@@ -66,14 +56,14 @@ namespace ShootingSystem.Client
             {
                 if (hit.collider.TryGetComponent(out IDamagable damagable))
                 {
-                    damagable.DoDamage(weapon.Damage);
+                    damagable.DoDamage(model.GetWeaponSO().Damage);
                 }
-                SpawnBulletHole(hit.collider.gameObject,hit.point,hit.normal);
+                SpawnBulletHole(hit.collider.gameObject, hit.point, hit.normal);
                 RpcOnShoot(from, hit.point);
             }
             else
             {
-                RpcOnShoot(from, direction.normalized * weapon.Distance);
+                RpcOnShoot(from, direction.normalized * model.GetWeaponSO().Distance);
             }
         }
         #endregion
@@ -88,24 +78,24 @@ namespace ShootingSystem.Client
         [ClientRpc]
         private void SpawnBulletHole(GameObject parent, Vector3 holePosition, Vector3 normal)
         {
-            if (weapon.BulletHole == null)
+            if (model.GetWeaponSO().BulletHole == null)
             {
                 Debug.LogWarning("No bullet hole prefab assigned in the weapon data.");
                 return;
             }
             Quaternion holeRotation = Quaternion.LookRotation(normal);
-            Vector3 offsetPosition = holePosition + normal * 0.01f; 
+            Vector3 offsetPosition = holePosition + normal * 0.01f;
 
             GameObject hole;
             if (parent != null)
             {
-                hole = Instantiate(weapon.BulletHole, offsetPosition, holeRotation);
+                hole = Instantiate(model.GetWeaponSO().BulletHole, offsetPosition, holeRotation);
                 hole.transform.SetParent(parent.transform, worldPositionStays: true);
                 hole.transform.localScale = Vector3.one;
             }
             else
             {
-                hole = Instantiate(weapon.BulletHole, offsetPosition, holeRotation);
+                hole = Instantiate(model.GetWeaponSO().BulletHole, offsetPosition, holeRotation);
             }
         }
 
@@ -114,7 +104,7 @@ namespace ShootingSystem.Client
         #region InputHandling
         private void OnShootInputStarted(InputAction.CallbackContext context)
         {
-            if (weapon.Mode == WeaponSO.ShootingMode.Press)
+            if (model.GetWeaponSO().Mode == WeaponSO.ShootingMode.Press)
             {
                 Shoot();
             }
@@ -129,6 +119,24 @@ namespace ShootingSystem.Client
             isFiring = false;
         }
 
+        private void OnMainWeaponSelected(InputAction.CallbackContext context)
+        {
+            if (!model.IsEquiped(0))
+            {
+                model.SetWeaponSO(0);
+                WeaponSO weaponSO = model.GetWeaponSO();
+                view.CmdChangeWeapon(weaponSO);
+            }
+        }
+        private void OnSecondaryWeaponSelected(InputAction.CallbackContext context)
+        {
+            if (!model.IsEquiped(1))
+            {
+                model.SetWeaponSO(1);
+                WeaponSO weaponSO = model.GetWeaponSO();
+                view.CmdChangeWeapon(weaponSO);
+            }
+        }
         #endregion
 
         #region Server
@@ -139,13 +147,13 @@ namespace ShootingSystem.Client
         #region Local
         private bool CanShoot()
         {
-            return (lastTimeFired + weapon.FireRate <= Time.time) && (currentBullets > 0);
+            return (lastTimeFired + model.GetWeaponSO().FireRate <= Time.time) && (model.CurrentBullets > 0);
         }
 
 
         public bool TryShoot(Vector3 from, Vector3 direction, out RaycastHit raycastHit)
         {
-            return Physics.Raycast(from, direction, out raycastHit, weapon.Distance, hitLayers);
+            return Physics.Raycast(from, direction, out raycastHit, model.GetWeaponSO().Distance, model.GetHitLayerMask());
         }
 
         private void Shoot()
@@ -158,15 +166,15 @@ namespace ShootingSystem.Client
             if (!CanShoot()) return;
 
             Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, mainCamera.nearClipPlane));
-            mouseWorldPosition += new Vector3(Random.Range(-weapon.RangeX,weapon.RangeX), Random.Range(-weapon.RangeY, weapon.RangeY));
-            Vector3 shootingDirection = (mouseWorldPosition - shootingPoint.position).normalized;
-            int bulletsShooted = Mathf.Min(currentBullets, weapon.BulletsPerShot);
-            currentBullets -= bulletsShooted;
+            mouseWorldPosition += new Vector3(Random.Range(-model.GetWeaponSO().RangeX, model.GetWeaponSO().RangeX), Random.Range(-model.GetWeaponSO().RangeY, model.GetWeaponSO().RangeY));
+            Vector3 shootingDirection = (mouseWorldPosition - mainCamera.transform.position).normalized;
+            int bulletsShooted = Mathf.Min(model.CurrentBullets, model.GetWeaponSO().BulletsPerShot);
+            model.CurrentBullets -= bulletsShooted;
             lastTimeFired = Time.time;
-            UpdateMagDisplay();
+            view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
             for (int i = 0; i < bulletsShooted; i++)
             {
-                CmdShootRaycast(mouseWorldPosition, shootingDirection);
+                CmdShootRaycast(mainCamera.transform.position, shootingDirection);
             }
         }
 
@@ -176,5 +184,6 @@ namespace ShootingSystem.Client
             inputActions.Player.Shoot.canceled -= OnShootInputCanceled;
         }
         #endregion
+
     }
 }
