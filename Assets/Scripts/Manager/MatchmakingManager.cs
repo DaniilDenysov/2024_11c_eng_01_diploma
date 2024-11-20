@@ -116,15 +116,16 @@ namespace Managers
             }
 
             var id = new CSteamID(param.m_ulSteamIDLobby);
+            SteamMatchmaking.SetLobbyData(id, "address", SteamUser.GetSteamID().ToString());
             SteamMatchmaking.SetLobbyData(id, "game_id", "Mafia");
             SteamMatchmaking.SetLobbyData(id, "num_members", "1");
             SteamMatchmaking.SetLobbyData(id, "max_members", $"{maxPlayersInLobby}");
 
-          //  ((CustomNetworkManager)NetworkManager.singleton).SteamID = id;
-           // NetworkManager.singleton.StartHost();
+            ((CustomNetworkManager)NetworkManager.singleton).SteamID = id;
+            NetworkManager.singleton.StartHost();
 
             Debug.Log("Lobby created successfully");
-         //   LoadingManager.Instance.EndLoading();
+           // LoadingManager.Instance.EndLoading();
         }
 
         private void OnLobbyEntered(LobbyEnter_t param)
@@ -132,9 +133,9 @@ namespace Managers
             if (NetworkServer.active) return;
 
             var id = new CSteamID(param.m_ulSteamIDLobby);
-           // NetworkManager.singleton.networkAddress = SteamMatchmaking.GetLobbyData(id, "name");
-           // ((CustomNetworkManager)NetworkManager.singleton).SteamID = id;
-           // NetworkManager.singleton.StartClient();
+            NetworkManager.singleton.networkAddress = SteamMatchmaking.GetLobbyData(id, "address");
+            ((CustomNetworkManager)NetworkManager.singleton).SteamID = id;
+            NetworkManager.singleton.StartClient();
 
             Debug.Log("Joined lobby successfully");
            // LoadingManager.Instance.EndLoading();

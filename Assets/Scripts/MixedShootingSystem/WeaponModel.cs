@@ -10,7 +10,7 @@ namespace ShootingSystem
         [SerializeField] private Transform shootingPoint;
         [SerializeField] private LayerMask hitLayers;
         [SerializeField] private List<WeaponSO> lodout = new List<WeaponSO>();
-        [SyncVar, SerializeField] private WeaponSO currentWeaponSO;
+        [SerializeField] private WeaponSO currentWeaponSO;
 
         public int CurrentBullets;
 

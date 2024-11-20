@@ -18,7 +18,7 @@ namespace ShootingSystem
 
         private void Start()
         {
-            if (!isClient) return;
+            if (!isLocalPlayer) return;
             Construct();
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -26,7 +26,7 @@ namespace ShootingSystem
 
         private void Update()
         {
-            if (!isClient) return;
+            if (!isLocalPlayer) return;
             if (inputActions.Player.Shoot.ReadValue<float>() == 0)
             {
                 return;
@@ -44,6 +44,8 @@ namespace ShootingSystem
             inputActions.Player.MainWeapon.performed += OnMainWeaponSelected;
             inputActions.Player.SecondaryWeapon.performed += OnSecondaryWeaponSelected;
             lastTimeFired = -model.GetWeaponSO().FireRate;
+            Debug.Log(model.GetWeaponSO());
+            Debug.Log(model.GetWeaponSO().Mag);
             model.CurrentBullets = model.GetWeaponSO().Mag.GetMaxBullets();
         }
 

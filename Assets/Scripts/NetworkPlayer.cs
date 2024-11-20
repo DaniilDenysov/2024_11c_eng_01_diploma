@@ -18,7 +18,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void OnPlayerDataChanged(Player oldValue, Player newValue)
     {
-        displayName.text = newValue.Nickname;
+        //displayName.text = newValue.Nickname;
     }
 
     public override void OnStartAuthority()
@@ -47,7 +47,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!isOwned)
         {
-            Destroy(localPlayerInterfaces);
+        //    Destroy(localPlayerInterfaces);
         }
     }
 }

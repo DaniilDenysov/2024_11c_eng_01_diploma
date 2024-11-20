@@ -99,16 +99,6 @@ public class PlayerLabel : NetworkBehaviour
     }
 
     #region commands
-    [Command]
-    public void CmdStartGame ()
-    {
-        if (!Player.IsPartyOwner) return;
-        CustomNetworkManager networkManager = ((CustomNetworkManager)NetworkManager.singleton);
-        if (!networkManager.CanStartGame()) return;
-
-        OnGameStarted();
-        networkManager.StartGame();
-    }
 
     [ClientRpc]
     public void OnGameStarted ()
