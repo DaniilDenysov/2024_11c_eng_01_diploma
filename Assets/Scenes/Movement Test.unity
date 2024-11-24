@@ -358,6 +358,16 @@ PrefabInstance:
       propertyPath: sceneId
       value: 2315628297
       objectReference: {fileID: 0}
+    - target: {fileID: 6053382522458843117, guid: aad0ba7013f65f845a574350f44fed0d,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7125137022996581400, guid: aad0ba7013f65f845a574350f44fed0d,
+        type: 3}
+      propertyPath: jumpForce
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 7771927710743836739, guid: aad0ba7013f65f845a574350f44fed0d,
         type: 3}
       propertyPath: m_LocalPosition.x

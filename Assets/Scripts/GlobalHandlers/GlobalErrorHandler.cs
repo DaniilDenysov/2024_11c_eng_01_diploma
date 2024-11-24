@@ -7,7 +7,6 @@ using UnityEngine;
 public class GlobalErrorHandler : Singleton<GlobalErrorHandler>
 {
     [SerializeField] private ErrorWindow info, action;
-    [SerializeField] private ViewAnimationHandler yesNoErrorWindow;
 
     public override GlobalErrorHandler GetInstance()
     {

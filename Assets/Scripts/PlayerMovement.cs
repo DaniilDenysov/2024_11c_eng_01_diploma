@@ -39,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public LayerMask whatIsGround;
     private bool isGrounded;
 
-    public Transform orientation;
+  //  public Transform orientation;
 
     private float horizontalInput;
     private float verticalInput;
@@ -47,13 +47,13 @@ public class PlayerMovement : MonoBehaviour
     private bool isCrouching;
     private bool isSprinting;
     private bool isCurrentlyCrouching = false;
-
+    private bool isOnSlope = false;
     private DefaultInput inputActions;
 
     public MovementState state;
 
     Vector3 movementDirection;
-
+    CapsuleCollider capsuleCollider;
     Rigidbody rb;
 
     public enum MovementState
@@ -68,6 +68,7 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
         rb.freezeRotation = true;
 
         isReadyToJump = true;
@@ -86,16 +87,26 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
-        
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
+        {
+            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            isOnSlope = angle < maxSlopeAngle && angle != 0;
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+            isOnSlope = false;
+        }
+
         MyInput();
-        SpeedControl();
+        //SpeedControl();
         StateHandler();
 
-        if (isGrounded)
+        /*if (isGrounded)
             rb.drag = groundDrag;
         else
-            rb.drag = 0;
+            rb.drag = 0;*/
     }
 
     private void FixedUpdate()
@@ -112,29 +123,21 @@ public class PlayerMovement : MonoBehaviour
         {
             state = MovementState.crouching;
             movementSpeed = crouchSpeed;
-
-            Debug.Log("Crouching");
         }
 
         if(isGrounded && isSprinting)
         {
             state = MovementState.sprinting;
-            movementSpeed = sprintSpeed;
-
-            Debug.Log("Sprinting");
+            movementSpeed = sprintSpeed;;
         }
         else if (isGrounded)
         {
             state = MovementState.walking;
             movementSpeed = walkSpeed;
-
-            Debug.Log("Walkinging");
         }
         else
         {
             state = MovementState.air;
-
-            Debug.Log("Jumping");
         }
     }
 
@@ -151,17 +154,18 @@ public class PlayerMovement : MonoBehaviour
         }
         isJumping = false;
 
-        if (isCrouching && isGrounded && !isCurrentlyCrouching)
+        if (isGrounded && isCrouching)
         {
-            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-            isCurrentlyCrouching = true;
+            capsuleCollider.height = playerHeight / 2;
+            //transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
+            //rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+            
         }
-
-        if (!isCrouching && isGrounded && isCurrentlyCrouching)
+        else
         {
-            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
-            isCurrentlyCrouching = false;
+            capsuleCollider.height = playerHeight;
+            // transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+           
         }
     }
     #endregion
@@ -171,49 +175,28 @@ public class PlayerMovement : MonoBehaviour
     {
         if (rb != null)
         {
-            movementDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+            movementDirection = transform.forward * verticalInput + transform.right * horizontalInput;
 
-            if (isOnSlope() && !exitingSlope)
+            if (isOnSlope && !exitingSlope)
             {
-                rb.AddForce(GetSlopeMovementDirection() * movementSpeed * 20f, ForceMode.Force);
-
-                if(rb.velocity.y > 0)
-                {
-                    rb.AddForce(Vector3.down * 80f, ForceMode.Force);
-                }
+                Vector3 slopeForce = GetSlopeMovementDirection() * movementSpeed;
+                rb.AddForce(slopeForce, ForceMode.Force);
             }
-
-            if (isGrounded)
-                rb.AddForce(movementDirection.normalized * movementSpeed * 10f, ForceMode.Force);
-
+            else if (isGrounded)
+            {
+                Vector3 horizontalVelocity = movementDirection.normalized * movementSpeed;
+                rb.velocity = new Vector3(horizontalVelocity.x, rb.velocity.y, horizontalVelocity.z);
+            }
             else if (!isGrounded)
-                rb.AddForce(movementDirection.normalized * movementSpeed * 10f * airMultiplier, ForceMode.Force); 
-
-            rb.useGravity = !isOnSlope();
-        }
-    }
-
-    private void SpeedControl()
-    {
-
-        if (isOnSlope() && !exitingSlope)
-        {
-            if (rb.velocity.magnitude > movementSpeed)
-                rb.velocity = rb.velocity.normalized * movementSpeed;
-            Debug.Log("is on slope");
-        }
-        else
-        {
-
-            Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
-            if (flatVel.magnitude > movementSpeed)
             {
-                Vector3 limitedVel = flatVel.normalized * movementSpeed;
-                rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
+                Vector3 horizontalVelocity = movementDirection.normalized * movementSpeed * airMultiplier;
+                rb.velocity = new Vector3(horizontalVelocity.x, rb.velocity.y, horizontalVelocity.z);
             }
+
+            rb.drag = isGrounded ? groundDrag : 0; 
         }
     }
+
 
     private void Jump()
     {
@@ -221,7 +204,7 @@ public class PlayerMovement : MonoBehaviour
         {
             exitingSlope = true;
 
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+           // rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         }
@@ -233,7 +216,7 @@ public class PlayerMovement : MonoBehaviour
         exitingSlope = false;
     }
 
-    private bool isOnSlope()
+    private bool IsOnSlope()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
         {
