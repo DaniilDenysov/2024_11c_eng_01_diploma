@@ -171,6 +171,11 @@ public class PlayerMovement : MonoBehaviour
         {
             movementDirection = transform.forward * verticalInput + transform.right * horizontalInput;
 
+            Vector3 currentVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+            Vector3 targetVelocity = movementDirection.normalized * movementSpeed;
+            Vector3 smoothedVelocity = Vector3.Lerp(currentVelocity, targetVelocity, Time.fixedDeltaTime * 10f);
+
+
             if (isOnSlope && !exitingSlope)
             {
                 Vector3 slopeForce = GetSlopeMovementDirection() * movementSpeed;
@@ -183,8 +188,8 @@ public class PlayerMovement : MonoBehaviour
             }
             else if (!isGrounded)
             {
-                Vector3 targetVelocity = movementDirection.normalized * movementSpeed * airMultiplier * 1.2f;
-                Vector3 smoothedVelocity = Vector3.Lerp(new Vector3(rb.velocity.x, 0, rb.velocity.z), targetVelocity, Time.fixedDeltaTime * 5f);
+                Vector3 airTargetVelocity = movementDirection.normalized * movementSpeed * airMultiplier;
+                Vector3 airSmoothedVelocity = Vector3.Lerp(new Vector3(rb.velocity.x, 0, rb.velocity.z), airTargetVelocity, Time.fixedDeltaTime * 5f);
                 rb.velocity = new Vector3(smoothedVelocity.x, rb.velocity.y, smoothedVelocity.z);
 
                 rb.AddForce(movementDirection.normalized * movementSpeed * 0.1f, ForceMode.Impulse);
