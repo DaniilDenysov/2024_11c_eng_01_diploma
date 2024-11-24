@@ -28,12 +28,6 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit slopeHit;
     private bool exitingSlope;
 
-
-//    [Header("Keybinds")]
-//    [SerializeField] public KeyCode jumpKey = KeyCode.Space;
-//    [SerializeField] public KeyCode sprintKey = KeyCode.LeftShift;
-//    [SerializeField] public KeyCode crouchKey = KeyCode.LeftControl;
-
     [Header("GroundCheck")]
     [SerializeField] public float playerHeight;
     [SerializeField] public LayerMask whatIsGround;
@@ -177,6 +171,11 @@ public class PlayerMovement : MonoBehaviour
         {
             movementDirection = transform.forward * verticalInput + transform.right * horizontalInput;
 
+            Vector3 currentVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+            Vector3 targetVelocity = movementDirection.normalized * movementSpeed;
+            Vector3 smoothedVelocity = Vector3.Lerp(currentVelocity, targetVelocity, Time.fixedDeltaTime * 10f);
+
+
             if (isOnSlope && !exitingSlope)
             {
                 Vector3 slopeForce = GetSlopeMovementDirection() * movementSpeed;
@@ -189,11 +188,14 @@ public class PlayerMovement : MonoBehaviour
             }
             else if (!isGrounded)
             {
-                Vector3 horizontalVelocity = movementDirection.normalized * movementSpeed * airMultiplier;
-                rb.velocity = new Vector3(horizontalVelocity.x, rb.velocity.y, horizontalVelocity.z);
+                Vector3 airTargetVelocity = movementDirection.normalized * movementSpeed * airMultiplier;
+                Vector3 airSmoothedVelocity = Vector3.Lerp(new Vector3(rb.velocity.x, 0, rb.velocity.z), airTargetVelocity, Time.fixedDeltaTime * 5f);
+                rb.velocity = new Vector3(smoothedVelocity.x, rb.velocity.y, smoothedVelocity.z);
+
+                rb.AddForce(movementDirection.normalized * movementSpeed * 0.1f, ForceMode.Impulse);
             }
 
-            rb.drag = isGrounded ? groundDrag : 0; 
+            rb.drag = isGrounded ? groundDrag : 0;
         }
     }
 
@@ -202,11 +204,14 @@ public class PlayerMovement : MonoBehaviour
     {
         if(rb != null)
         {
+            // rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
             exitingSlope = true;
 
-           // rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            Vector3 currentVelocity = rb.velocity;
 
-            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+            rb.velocity = new Vector3(currentVelocity.x, 0f, currentVelocity.z);
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
 
