@@ -1009,7 +1009,7 @@ MonoBehaviour:
   crouchSpeed: 4
   crouchYScale: 0.5
   startYScale: 0
-  maxSlopeAngle: 40
+  maxSlopeAngle: 70
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
