@@ -1,7 +1,8 @@
+using Mirror;
 using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
-public class PlayerCameraController : MonoBehaviour
+public class PlayerCameraController : NetworkBehaviour
 {
     [Header("Mouse Settings")]
     public float mouseSensitivity = 100f;  // Mouse sensitivity
@@ -44,6 +45,12 @@ public class PlayerCameraController : MonoBehaviour
 
     void Update()
     {
+        if (!isLocalPlayer)
+        {
+            camera.gameObject.SetActive(false);
+            Destroy(this);
+            return;
+        }
         HandleMouseLook();
         HandleFieldOfView();
         HandleHeadBobbing();
@@ -98,5 +105,12 @@ public class PlayerCameraController : MonoBehaviour
     {
         defaultFOV = fov;
         currentFOV = fov;
+    }
+
+    private void OnDestroy()
+    {
+        if (!isLocalPlayer) return;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 }

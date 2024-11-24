@@ -2,68 +2,103 @@ using UnityEngine;
 using System.Collections.Generic;
 using ShootingSystem.Local;
 using Mirror;
+using Managers;
 
 namespace HealthSystem
 {
     public class HealthSystem : NetworkBehaviour, IDamagable
     {
-
-        [SerializeField] private CustomSlider _healthSlider;
+        [SerializeField] private CustomSlider serverDisplay, clientDisplay;
+        private CustomSlider _healthSlider;
         [SerializeField] private HealthSystem _armorSystem;
         [SerializeField] private bool _canTakeDamage = true;
 
-        private float _currentHealth;
 
-        void Start()
+
+        public override void OnStartServer()
         {
-            _currentHealth = _healthSlider.GetCurrentValue();
+            base.OnStartServer();
+            SetSlider();
+        }
+
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            SetSlider();
+        }
+
+        public void SetSlider ()
+        {
+            if (isLocalPlayer)
+            {
+                _healthSlider = clientDisplay;
+            }
+            else
+            {
+                _healthSlider = serverDisplay;
+            }
         }
 
         [Server]
-        public void DoDamage(float damage)
+        public void DoDamage(float damage, NetworkConnectionToClient conn = null)
         {
             if (!_canTakeDamage)
                 return;
 
             if (_armorSystem != null && _armorSystem.GetCurrentHealth() > 0)
             {
-                _armorSystem.DoDamage(damage);
+                _armorSystem.DoDamage(damage, conn);
                 return;
             }
 
-            if (_currentHealth - damage <= 0)
+            float newHealth = 0f;
+
+            if (_healthSlider.GetCurrentValue() - damage <= 0)
             {
-                _currentHealth = 0;
+                newHealth = 0;
+                if (conn != null)
+                {
+                    OnPlayerDeath(netIdentity.connectionToClient);
+                }
+                NetworkServer.Destroy(gameObject);
             }
             else
             {
-                _currentHealth = _healthSlider.GetCurrentValue() - damage;
+                newHealth = _healthSlider.GetCurrentValue() - damage;
             }
 
-            _healthSlider.SetCurrentValue(_currentHealth);
+            UpdateHealthBar(newHealth);
 
-            Debug.Log($"Remaining Health: {_currentHealth}");
+            Debug.Log($"Remaining Health: {newHealth}");
         }
 
-        [Server]
+        [TargetRpc]
+        public void OnPlayerDeath (NetworkConnection target)
+        {
+            RespawnManager.Instance.ActivateRespawnMenu();
+            NetworkServer.Destroy(gameObject);
+        }
+
+        [ClientRpc]
         public void SetCanTakeDamage(bool value)
         {
             _canTakeDamage = value;
         }
 
         [Server]
-        public float GetCurrentHealth() => _currentHealth;
+        public float GetCurrentHealth() => _healthSlider.GetCurrentValue();
 
         [Server]
         public float GetMaxHealth() => _healthSlider.GetMaxValue();
 
         [Server]
-        public float GetHealthPercentage() => _currentHealth / _healthSlider.GetMaxValue();
+        public float GetHealthPercentage() => _healthSlider.GetCurrentValue() / _healthSlider.GetMaxValue();
 
-        [Server]
-        private void UpdateHealthBar()
+
+        [ClientRpc]
+        private void UpdateHealthBar(float health)
         {
-            _healthSlider.SetCurrentValue(_currentHealth);
+            _healthSlider.SetCurrentValue(health);
         }
     }
 }

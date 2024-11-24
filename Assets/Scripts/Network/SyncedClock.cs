@@ -4,79 +4,159 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class SyncedClock : NetworkBehaviour
+namespace SynchronizedClock
 {
-    public static SyncedClock Instance;
-    [SerializeField, SyncVar(hook = nameof(OnTimeChanged))] private float currentTime;
-    [SerializeField] private TMP_Text display;
-    private Clock clock;
-
-    private void Awake()
+    public class SyncedClock : NetworkBehaviour
     {
-        if (Instance != null)
+        public static SyncedClock Instance;
+
+        [SerializeField, SyncVar(hook = nameof(OnTimeChanged))] private float currentTime;
+        [SerializeField] private TMP_Text display;
+
+        private Clock clock;
+
+        private void Awake()
         {
-            Destroy(this);
+            if (Instance != null)
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Instance = this;
+            }
+
+            clock = new Clock(UpdateTimeCallback, TimerStoppedCallback);
         }
-        else
+
+        private void FixedUpdate()
         {
-            Instance = this;
+            if (isServer)
+            {
+                clock?.Tick(Time.fixedDeltaTime);
+                currentTime = clock?.CurrentTime ?? 0;
+            }
         }
-        clock = new Clock { CurrentTime = 0, IsStopped = true };
-    }
 
-    private void FixedUpdate()
-    {
-        if (clock == null || !(isServer && !clock.IsStopped)) return;
-        clock.CurrentTime -= Time.fixedDeltaTime;
-        if (clock.CurrentTime <= 0)
+        private void OnTimeChanged(float oldValue, float newValue)
         {
-           clock.CurrentTime = 0;
-           clock.IsStopped = true;
+            int minutes = Mathf.FloorToInt(newValue / 60);
+            int seconds = Mathf.FloorToInt(newValue % 60);
+            display.text = $"{minutes}:{seconds:D2}";
         }
-        currentTime = clock.CurrentTime; 
-    }
 
-    private void OnTimeChanged(float oldValue, float newValue)
-    {
-        int minutes = Mathf.FloorToInt(newValue / 60);
-        int seconds = Mathf.FloorToInt(newValue % 60);
-        display.text = $"{minutes}:{seconds:D2}";
-    }
-
-    [Server]
-    public void StartTimer(float timeEstimation)
-    {
-        clock = new Clock();
-        clock.CurrentTime = timeEstimation;
-        clock.IsStopped = false;
-        currentTime = clock.CurrentTime; 
-    }
-
-    [Server]
-    public void DeleteTimer()
-    {
-        clock = null;
-    }
-
-    [Server]
-    public void StopTimer()
-    {
-        clock.IsStopped = true;
-    }
-
-    [Server]
-    public void ResumeTimer()
-    {
-        if (clock.CurrentTime > 0)
+        #region Public API
+        [Server]
+        public void StartTimer(float timeEstimation)
         {
-            clock.IsStopped = false;
+            clock = new Clock(UpdateTimeCallback, TimerStoppedCallback);
+            clock.Start(timeEstimation);
+            currentTime = clock.CurrentTime;
         }
+
+        [Server]
+        public void DeleteTimer()
+        {
+            clock = null;
+        }
+
+        [Server]
+        public void StopTimer()
+        {
+            clock?.Stop();
+        }
+
+        [Server]
+        public void ResumeTimer()
+        {
+            clock?.Resume();
+        }
+        #endregion
+
+        #region Callbacks
+        private void UpdateTimeCallback(float newTime)
+        {
+            currentTime = newTime;
+        }
+
+        private void TimerStoppedCallback()
+        {
+            Debug.Log("Timer has stopped.");
+        }
+        #endregion
+
     }
 
     [Serializable]
-    class Clock
+    public class Clock
     {
-        public float CurrentTime;
-        public bool IsStopped;
+        public float CurrentTime { get; private set; }
+        public bool IsStopped { get; private set; }
+
+        private Action<float> onTimeUpdated;
+        private UnityEvent onTimerStopped;
+
+        public Clock(Action<float> timeUpdateCallback, UnityAction stoppedCallback)
+        {
+            onTimeUpdated = timeUpdateCallback;
+            onTimerStopped = new UnityEvent();
+            onTimerStopped.AddListener(stoppedCallback);
+
+            CurrentTime = 0;
+            IsStopped = true;
+        }
+
+        public void Start(float time)
+        {
+            CurrentTime = time;
+            IsStopped = false;
+            NotifyTimeUpdate();
+        }
+
+        public void Stop()
+        {
+            IsStopped = true;
+            NotifyStopped();
+        }
+
+        public void Resume()
+        {
+            if (CurrentTime > 0)
+            {
+                IsStopped = false;
+            }
+        }
+
+        public override string ToString()
+        {
+            int minutes = Mathf.FloorToInt(CurrentTime / 60);
+            int seconds = Mathf.FloorToInt(CurrentTime % 60);
+            return $"{minutes}:{seconds:D2}";
+        }
+
+        public void Tick(float deltaTime)
+        {
+            if (IsStopped || CurrentTime <= 0) return;
+
+            CurrentTime -= deltaTime;
+
+            if (CurrentTime <= 0)
+            {
+                CurrentTime = 0;
+                Stop();
+            }
+
+            NotifyTimeUpdate();
+        }
+
+        private void NotifyTimeUpdate()
+        {
+            onTimeUpdated?.Invoke(CurrentTime);
+        }
+
+        private void NotifyStopped()
+        {
+            onTimerStopped?.Invoke();
+        }
     }
 }

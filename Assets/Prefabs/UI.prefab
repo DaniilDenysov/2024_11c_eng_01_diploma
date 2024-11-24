@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4b66f21097323d44ab40669b2fb9c53d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98e8e1cf8dc7dbf469617c2e40c8a944, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -140,7 +140,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4b66f21097323d44ab40669b2fb9c53d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98e8e1cf8dc7dbf469617c2e40c8a944, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -215,7 +215,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f23eeb5959b78034e9987eac28287256, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98e8e1cf8dc7dbf469617c2e40c8a944, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -235,7 +235,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9134379122018490217}
   - component: {fileID: 3098170966358394056}
-  - component: {fileID: 8525179383811682146}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -277,9 +276,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 590d7cad85822a3459c3b0b1a8fcd346, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
   currentValueImage: {fileID: 4088459510738514459}
   oldValueImage: {fileID: 9154024643155302453}
   backgroundImage: {fileID: 3590003553162066970}
@@ -290,20 +286,3 @@ MonoBehaviour:
   fadeOutTimer: 0.5
   holdTime: 4
   eneableFading: 1
---- !u!114 &8525179383811682146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7904185466930134599}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneId: 0
-  _assetId: 2474179305
-  serverOnly: 0
-  visibility: 0
-  hasSpawned: 0

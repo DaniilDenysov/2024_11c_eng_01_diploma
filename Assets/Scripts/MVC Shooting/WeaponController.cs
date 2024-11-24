@@ -58,10 +58,10 @@ namespace ShootingSystem
             {
                 if (hit.collider.TryGetComponent(out IDamagable damagable))
                 {
-                    damagable.DoDamage(model.GetWeaponSO().Damage);
+                    damagable.DoDamage(model.GetWeaponSO().Damage, conn);
                 }
-                SpawnBulletHole(hit.collider.gameObject, hit.point, hit.normal);
-                RpcOnShoot(from, hit.point);
+              //  SpawnBulletHole(hit.collider.gameObject, hit.point, hit.normal);
+             //   RpcOnShoot(from, hit.point);
             }
             else
             {
@@ -77,7 +77,7 @@ namespace ShootingSystem
             Debug.DrawLine(from, hitPoint, Color.red, 5.0f);
         }
 
-        [ClientRpc]
+ 
         private void SpawnBulletHole(GameObject parent, Vector3 holePosition, Vector3 normal)
         {
             if (model.GetWeaponSO().BulletHole == null)
@@ -99,6 +99,7 @@ namespace ShootingSystem
             {
                 hole = Instantiate(model.GetWeaponSO().BulletHole, offsetPosition, holeRotation);
             }
+            NetworkServer.Spawn(hole);
         }
 
         #endregion
@@ -106,6 +107,7 @@ namespace ShootingSystem
         #region InputHandling
         private void OnShootInputStarted(InputAction.CallbackContext context)
         {
+            if (!isLocalPlayer) return;
             if (model.GetWeaponSO().Mode == WeaponSO.ShootingMode.Press)
             {
                 Shoot();
@@ -118,11 +120,13 @@ namespace ShootingSystem
 
         private void OnShootInputCanceled(InputAction.CallbackContext context)
         {
+            if (!isLocalPlayer) return;
             isFiring = false;
         }
 
         private void OnMainWeaponSelected(InputAction.CallbackContext context)
         {
+            if (!isLocalPlayer) return;
             if (!model.IsEquiped(0))
             {
                 model.SetWeaponSO(0);
@@ -132,6 +136,7 @@ namespace ShootingSystem
         }
         private void OnSecondaryWeaponSelected(InputAction.CallbackContext context)
         {
+            if (!isLocalPlayer) return;
             if (!model.IsEquiped(1))
             {
                 model.SetWeaponSO(1);
@@ -178,12 +183,6 @@ namespace ShootingSystem
             {
                 CmdShootRaycast(mainCamera.transform.position, shootingDirection);
             }
-        }
-
-        private void OnDestroy()
-        {
-            inputActions.Player.Shoot.started -= OnShootInputStarted;
-            inputActions.Player.Shoot.canceled -= OnShootInputCanceled;
         }
         #endregion
 

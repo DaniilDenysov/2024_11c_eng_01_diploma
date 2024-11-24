@@ -20,5 +20,10 @@ namespace Managers
             base.OnClientConnect();
             Debug.Log("Connected to server");
         }
+
+        public void SpawnPlayerAt (Vector3 position, NetworkConnectionToClient connectionToClient)
+        {
+            NetworkServer.AddPlayerForConnection(connectionToClient,Instantiate(playerPrefab,position,Quaternion.identity));
+        }
     }
 }

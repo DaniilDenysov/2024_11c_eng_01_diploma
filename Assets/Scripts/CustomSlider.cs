@@ -8,7 +8,7 @@ namespace HealthSystem
     /// <summary>
     /// Represents a custom slider with current and old value visualization.
     /// </summary>
-    public class CustomSlider : NetworkBehaviour
+    public class CustomSlider : MonoBehaviour
     {
         [SerializeField] private Image currentValueImage;
         [SerializeField] private Image oldValueImage;
@@ -63,7 +63,6 @@ namespace HealthSystem
         /// Sets the current value of the slider.
         /// </summary>
         /// <param name="value">The new value to set.</param>
-        [ClientRpc]
         public void SetCurrentValue(float value)
         {
             SetCurrentValueWithoutNotification(value);
@@ -76,7 +75,6 @@ namespace HealthSystem
             
         }
 
-        [ClientRpc]
         public void SetCurrentValueWithoutNotification(float value)
         {
             currentValue = Mathf.Clamp(value, 0, maxValue);

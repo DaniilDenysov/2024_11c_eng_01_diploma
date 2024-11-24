@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using Mirror;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float movementSpeed;
@@ -72,15 +73,16 @@ public class PlayerMovement : MonoBehaviour
         inputActions = new DefaultInput();
         inputActions.Enable();
 
-        inputActions.Player.Jump.started += context => isJumping = true;
-        inputActions.Player.Crouch.started += context => isCrouching = true;
-        inputActions.Player.Crouch.canceled += context => isCrouching = false;
-        inputActions.Player.Run.started += context => isSprinting = true;
-        inputActions.Player.Run.canceled += context => isSprinting = false;
+        inputActions.Player.Jump.started += (context) => { if (!isLocalPlayer) return; isJumping = true; };
+        inputActions.Player.Crouch.started += (context) => { if (!isLocalPlayer) return; isCrouching = true; };
+        inputActions.Player.Crouch.canceled += (context) => { if (!isLocalPlayer) return; isCrouching = false; };
+        inputActions.Player.Run.started += (context) => { if (!isLocalPlayer) return; isSprinting = true; };
+        inputActions.Player.Run.canceled += (context) => { if (!isLocalPlayer) return; isSprinting = false; };
     }
 
     private void Update()
     {
+        if (!isLocalPlayer) return;
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
         {
             float angle = Vector3.Angle(Vector3.up, slopeHit.normal);

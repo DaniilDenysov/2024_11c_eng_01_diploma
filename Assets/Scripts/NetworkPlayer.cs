@@ -9,6 +9,7 @@ using UnityEngine;
 public class NetworkPlayer : NetworkBehaviour
 {
     [SerializeField] private GameObject localPlayerInterfaces;
+    [SerializeField] private Camera playerCamera;
     public static NetworkPlayer LocalPlayerInstance;
 
     [SerializeField, SyncVar(hook = nameof(OnPlayerDataChanged))] private Player player;
@@ -29,6 +30,11 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
+    public override void OnStartLocalPlayer()
+    {
+        localPlayerInterfaces.SetActive(true);
+    }
+
     public override void OnStopAuthority()
     {
         if (isOwned)
@@ -36,6 +42,8 @@ public class NetworkPlayer : NetworkBehaviour
             LocalPlayerInstance = null;
         }
     }
+
+    public Camera GetPlayerCamera() => playerCamera;
 
     [Server]
     public void SetPlayer(Player player)
