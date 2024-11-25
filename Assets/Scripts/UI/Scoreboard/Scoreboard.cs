@@ -13,7 +13,7 @@ namespace Score
     public class Scoreboard : NetworkSingleton<Scoreboard>
     {
         //change to dictionary
-        [SerializeField, SyncVar] private List<PlayerStats> players = new List<PlayerStats>();
+        [SerializeField] private List<PlayerStats> players = new List<PlayerStats>();
         [SerializeField] private GameObject scoreboardBody;
         [SerializeField] private Transform labelContainer;
         [SerializeField] private ScoreboardLabel scoreboardLabel;

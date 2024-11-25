@@ -23,6 +23,13 @@ namespace Managers
             Debug.Log("Connected to server");
         }
 
+        public override void OnClientDisconnect()
+        {
+            base.OnClientDisconnect();
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
         public void SpawnPlayerAt (Vector3 position, NetworkConnectionToClient connectionToClient)
         {
            GameObject newPlayer = Instantiate(playerPrefab, position, Quaternion.identity);

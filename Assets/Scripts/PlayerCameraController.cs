@@ -48,7 +48,7 @@ public class PlayerCameraController : NetworkBehaviour
     {
         if (!isLocalPlayer)
         {
-            camera.gameObject.SetActive(false);
+            camera.enabled = false;
             Destroy(this);
             return;
         }

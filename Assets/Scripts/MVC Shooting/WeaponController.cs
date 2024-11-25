@@ -41,8 +41,8 @@ namespace ShootingSystem
             inputActions = new DefaultInput();
             inputActions.Enable();
             inputActions.Player.Reload.performed += OnReloaded;
-            inputActions.Player.MainWeapon.performed += OnMainWeaponSelected;
-            inputActions.Player.SecondaryWeapon.performed += OnSecondaryWeaponSelected;
+           // inputActions.Player.MainWeapon.performed += OnMainWeaponSelected;
+          //  inputActions.Player.SecondaryWeapon.performed += OnSecondaryWeaponSelected;
             lastTimeFired = -model.GetWeaponSO().FireRate;
             Debug.Log(model.GetWeaponSO());
             Debug.Log(model.GetWeaponSO().Mag);

@@ -4,6 +4,7 @@ using ShootingSystem.Local;
 using Mirror;
 using Managers;
 using Score;
+using Kilfeed;
 
 namespace HealthSystem
 {
@@ -57,8 +58,11 @@ namespace HealthSystem
             if (_healthSlider.GetCurrentValue() - damage <= 0)
             {
                 newHealth = 0;
-                Scoreboard.Instance.AddKillFor(conn.identity.GetComponent<NetworkPlayer>().GetName());
-                Scoreboard.Instance.AddDeathFor(netIdentity.GetComponent<NetworkPlayer>().GetName());
+                var killer = conn.identity.GetComponent<NetworkPlayer>().GetName();
+                var victim = netIdentity.GetComponent<NetworkPlayer>().GetName();
+                Scoreboard.Instance.AddKillFor(killer);
+                Scoreboard.Instance.AddDeathFor(victim);
+                KillfeedManager.Instance.RpcDisplayFeed(killer, KillfeedManager.Instance.GetPhrase(), victim);
                 InitiateRespawn(netIdentity.connectionToClient);
                 OnPlayerDied();
             }

@@ -14,7 +14,7 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField] private Camera playerCamera;
     public static NetworkPlayer LocalPlayerInstance;
 
-    [SyncVar(hook = nameof(OnNicknameChanged)), SerializeField] private string nickname; 
+    [SerializeField, SyncVar(hook = nameof(OnNicknameChanged))] private string nickname; 
 
     [SerializeField] private TMP_Text displayName;
 
@@ -25,29 +25,25 @@ public class NetworkPlayer : NetworkBehaviour
         Scoreboard.Instance.AddPlayer(newNickname);
     }
 
-    public override void OnStartAuthority()
+  
+
+    public override void OnStartClient()
     {
+        base.OnStartClient();
+       
+    }
+
+    private void OnNicknameChanged(string oldName, string newName)
+    {
+        Debug.Log($"Nickname changed from {oldName} to {newName}");
+        displayName.text = newName;
+        Scoreboard.Instance.AddPlayer(newName);
         if (isOwned)
         {
-            if (SteamManager.Initialized)
-            {
-                nickname = SteamFriends.GetPersonaName();
-            }
-            else
-            {
-                Debug.LogError($"Steam not initialized!");
-            }
-            CmdAddPlayer(nickname);
-            LocalPlayerInstance = this;
+            displayName.gameObject.SetActive(false);
         }
     }
 
-    public void OnNicknameChanged (string oldName, string newName)
-    {
-        Debug.Log($"Nickname changed from {oldName} to {newName}");
-        if (!isOwned) displayName.text = newName;
-        else displayName.gameObject.SetActive(false);
-    }
 
     [Server]
     public void SetNickname (string newName)
@@ -61,6 +57,18 @@ public class NetworkPlayer : NetworkBehaviour
     {
         base.OnStartLocalPlayer();
         localPlayerInterfaces.SetActive(true);
+        if (!isLocalPlayer) return;
+        if (SteamManager.Initialized)
+        {
+            nickname = SteamFriends.GetPersonaName();
+            CmdAddPlayer(nickname);
+        }
+        else
+        {
+            Debug.LogError($"Steam not initialized!");
+        }
+
+        LocalPlayerInstance = this;
     }
 
     public override void OnStopAuthority()
