@@ -2317,7 +2317,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 0
-  maxPlayersInLobby: 2
+  maxPlayersInLobby: 10
 --- !u!1 &871092523
 GameObject:
   m_ObjectHideFlags: 0
