@@ -13,7 +13,7 @@ namespace Managers
     {
         [SerializeField,Range(0,100f)] private float respawnTime = 10f;
         [SerializeField] private TMP_Text display;
-        [SerializeField] private Transform spawnPoint;
+        [SerializeField] private Transform [] spawnPoints;
         [SerializeField] private GameObject respawnScreen;
         [SerializeField] private GameObject respawnButton;
         Clock clock;
@@ -47,8 +47,10 @@ namespace Managers
         [Command(requiresAuthority = false)]
         public void RespawnPlayer (NetworkConnectionToClient conn = null)
         {
-            ((CustomNetworkManager)NetworkManager.singleton).SpawnPlayerAt(spawnPoint.transform.position, conn);
+            ((CustomNetworkManager)NetworkManager.singleton).SpawnPlayerAt(GetRandomSpawnPoint().position, conn);
         }
+
+        public Transform GetRandomSpawnPoint() => spawnPoints[Random.Range(0,spawnPoints.Length)];
 
         private void Update()
         {

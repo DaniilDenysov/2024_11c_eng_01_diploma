@@ -9,7 +9,7 @@ using General;
 using Steamworks;
 using UnityEngine.Events;
 
-namespace Managers
+namespace Managers  
 {
     public class CustomNetworkManager : NetworkManager
     {
@@ -23,6 +23,12 @@ namespace Managers
             Debug.Log("Connected to server");
         }
 
+        public override void OnServerConnect(NetworkConnectionToClient conn)
+        {
+            base.OnServerConnect(conn);
+            SpawnPlayerAt(RespawnManager.Instance.GetRandomSpawnPoint().position, conn);
+        }
+
         public override void OnClientDisconnect()
         {
             base.OnClientDisconnect();
@@ -30,10 +36,11 @@ namespace Managers
             Cursor.visible = true;
         }
 
-        public void SpawnPlayerAt (Vector3 position, NetworkConnectionToClient connectionToClient)
+        public void SpawnPlayerAt (Vector3 postition,NetworkConnectionToClient connectionToClient)
         {
-           GameObject newPlayer = Instantiate(playerPrefab, position, Quaternion.identity);
-           NetworkServer.ReplacePlayerForConnection(connectionToClient, newPlayer, ReplacePlayerOptions.Destroy);
+           GameObject newPlayer = Instantiate(playerPrefab, postition, Quaternion.identity);
+            if (connectionToClient.identity != null) NetworkServer.ReplacePlayerForConnection(connectionToClient, newPlayer, ReplacePlayerOptions.Destroy);
+            else NetworkServer.AddPlayerForConnection(connectionToClient, newPlayer);
         }
 
     }

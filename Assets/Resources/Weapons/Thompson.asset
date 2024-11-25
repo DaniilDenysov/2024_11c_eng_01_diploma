@@ -25,7 +25,7 @@ MonoBehaviour:
   burst: 1
   bulletsPerShot: 1
   mode: 1
-  rangeX: 0.01
-  rangeY: 0.01
+  rangeX: 0.05
+  rangeY: 0.05
   scopeTime: 3
   mag: {fileID: 11400000, guid: 321a724362cdcc043831aad74f390f71, type: 2}

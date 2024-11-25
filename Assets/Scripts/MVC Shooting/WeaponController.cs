@@ -73,7 +73,6 @@ namespace ShootingSystem
                     damagable.DoDamage(model.GetWeaponSO().Damage, conn);
                 }
                 SpawnProjectile(model.GetShootingPoint().position, hit.point, conn);
-                Debug.Log(hit.point);
                 RpcSpawnBulletHole(hit.point, hit.normal, hit.collider.GetComponent<NetworkIdentity>());
                 //  SpawnBulletHole(hit.collider.gameObject, hit.point, hit.normal);
                 RpcOnShoot(from, hit.point);
@@ -84,6 +83,8 @@ namespace ShootingSystem
             }
         }
         #endregion
+
+
 
         #region RPCs
         [ClientRpc]
@@ -162,18 +163,25 @@ namespace ShootingSystem
             }
             if (!CanShoot()) return;
 
-            Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, mainCamera.nearClipPlane));
-            mouseWorldPosition += new Vector3(UnityEngine.Random.Range(-model.GetWeaponSO().RangeX, model.GetWeaponSO().RangeX), UnityEngine.Random.Range(-model.GetWeaponSO().RangeY, model.GetWeaponSO().RangeY));
-            Vector3 shootingDirection = (mouseWorldPosition - mainCamera.transform.position).normalized;
+            Vector3 shootingDirection = mainCamera.transform.forward;
             int bulletsShooted = Mathf.Min(model.CurrentBullets, model.GetWeaponSO().BulletsPerShot);
             model.CurrentBullets -= bulletsShooted;
             lastTimeFired = Time.time;
             view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
+
             for (int i = 0; i < bulletsShooted; i++)
             {
-                CmdShootRaycast(mainCamera.transform.position, shootingDirection);
+                Vector3 spread = new Vector3(
+                    UnityEngine.Random.Range(-model.GetWeaponSO().RangeX, model.GetWeaponSO().RangeX),
+                    UnityEngine.Random.Range(-model.GetWeaponSO().RangeY, model.GetWeaponSO().RangeY),
+                    0
+                );
+                spread = mainCamera.transform.TransformDirection(spread);
+                Vector3 finalDirection = (shootingDirection + spread).normalized;
+                CmdShootRaycast(mainCamera.transform.position, finalDirection);
             }
         }
+
         #endregion
 
     }
