@@ -74,8 +74,9 @@ namespace ShootingSystem
                 }
                 SpawnProjectile(model.GetShootingPoint().position, hit.point, conn);
                 Debug.Log(hit.point);
+                RpcSpawnBulletHole(hit.point, hit.normal, hit.collider.GetComponent<NetworkIdentity>());
                 //  SpawnBulletHole(hit.collider.gameObject, hit.point, hit.normal);
-                 RpcOnShoot(from, hit.point);
+                RpcOnShoot(from, hit.point);
             }
             else
             {
@@ -91,29 +92,16 @@ namespace ShootingSystem
             Debug.DrawLine(from, hitPoint, Color.red, 5.0f);
         }
 
- 
-        private void SpawnBulletHole(GameObject parent, Vector3 holePosition, Vector3 normal)
-        {
-            if (model.GetWeaponSO().BulletHole == null)
-            {
-                Debug.LogWarning("No bullet hole prefab assigned in the weapon data.");
-                return;
-            }
-            Quaternion holeRotation = Quaternion.LookRotation(normal);
-            Vector3 offsetPosition = holePosition + normal * 0.01f;
 
-            GameObject hole;
-            if (parent != null)
+        [ClientRpc]
+        private void RpcSpawnBulletHole(Vector3 hitPosition, Vector3 hitNormal, NetworkIdentity hitObject)
+        {
+            GameObject bulletHole = Instantiate(model.GetWeaponSO().BulletHole, hitPosition, Quaternion.LookRotation(hitNormal));
+            if (hitObject != null)
             {
-                hole = Instantiate(model.GetWeaponSO().BulletHole, offsetPosition, holeRotation);
-                hole.transform.SetParent(parent.transform, worldPositionStays: true);
-                hole.transform.localScale = Vector3.one;
+                bulletHole.transform.SetParent(hitObject.transform);
             }
-            else
-            {
-                hole = Instantiate(model.GetWeaponSO().BulletHole, offsetPosition, holeRotation);
-            }
-            NetworkServer.Spawn(hole);
+            Destroy(bulletHole, 3f);
         }
 
         #endregion

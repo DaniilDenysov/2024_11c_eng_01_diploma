@@ -67,6 +67,15 @@
                     "processors": "",
                     "interactions": "Hold",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Scoreboard",
+                    "type": "Button",
+                    "id": "c9a23f78-8f60-4908-95a8-17065a2f8d3d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press,Hold",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -144,6 +153,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "212a4b3e-c51c-4ef9-a7ec-0978005d2808",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Scoreboard",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

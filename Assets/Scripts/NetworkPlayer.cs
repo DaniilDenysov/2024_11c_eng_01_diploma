@@ -1,5 +1,7 @@
 using DTOs;
+using Managers;
 using Mirror;
+using Score;
 using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,26 +14,52 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField] private Camera playerCamera;
     public static NetworkPlayer LocalPlayerInstance;
 
-    [SerializeField, SyncVar(hook = nameof(OnPlayerDataChanged))] private Player player;
+    [SyncVar(hook = nameof(OnNicknameChanged)), SerializeField] private string nickname; 
 
     [SerializeField] private TMP_Text displayName;
-    public Player GetPlayerData() => player;
 
-    private void OnPlayerDataChanged(Player oldValue, Player newValue)
+
+    [Command]
+    public void CmdAddPlayer (string newNickname)
     {
-        //displayName.text = newValue.Nickname;
+        Scoreboard.Instance.AddPlayer(newNickname);
     }
 
     public override void OnStartAuthority()
     {
         if (isOwned)
         {
+            if (SteamManager.Initialized)
+            {
+                nickname = SteamFriends.GetPersonaName();
+            }
+            else
+            {
+                Debug.LogError($"Steam not initialized!");
+            }
+            CmdAddPlayer(nickname);
             LocalPlayerInstance = this;
         }
     }
 
+    public void OnNicknameChanged (string oldName, string newName)
+    {
+        Debug.Log($"Nickname changed from {oldName} to {newName}");
+        if (!isOwned) displayName.text = newName;
+        else displayName.gameObject.SetActive(false);
+    }
+
+    [Server]
+    public void SetNickname (string newName)
+    {
+        nickname = newName;
+    }
+
+    public string GetName() => nickname;
+
     public override void OnStartLocalPlayer()
     {
+        base.OnStartLocalPlayer();
         localPlayerInterfaces.SetActive(true);
     }
 
@@ -44,18 +72,4 @@ public class NetworkPlayer : NetworkBehaviour
     }
 
     public Camera GetPlayerCamera() => playerCamera;
-
-    [Server]
-    public void SetPlayer(Player player)
-    {
-        this.player = player;
-    }
-
-    private void Start()
-    {
-        if (!isOwned)
-        {
-        //    Destroy(localPlayerInterfaces);
-        }
-    }
 }

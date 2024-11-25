@@ -15,6 +15,8 @@ namespace Managers
     {
         public CSteamID SteamID { get; set; }
 
+
+
         public override void OnClientConnect()
         {
             base.OnClientConnect();
@@ -23,7 +25,18 @@ namespace Managers
 
         public void SpawnPlayerAt (Vector3 position, NetworkConnectionToClient connectionToClient)
         {
-           NetworkServer.ReplacePlayerForConnection(connectionToClient, Instantiate(playerPrefab, position, Quaternion.identity), ReplacePlayerOptions.Destroy);
+           GameObject newPlayer = Instantiate(playerPrefab, position, Quaternion.identity);
+           NetworkServer.ReplacePlayerForConnection(connectionToClient, newPlayer, ReplacePlayerOptions.Destroy);
         }
+
     }
+}
+
+[System.Serializable]
+public class PlayerStats
+{
+    public string Nickname;
+    public int KillCount;
+    public int AssistCount;
+    public int DeathCount;
 }

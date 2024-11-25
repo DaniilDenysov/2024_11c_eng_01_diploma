@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ShootingSystem.Local;
 using Mirror;
 using Managers;
+using Score;
 
 namespace HealthSystem
 {
@@ -56,6 +57,8 @@ namespace HealthSystem
             if (_healthSlider.GetCurrentValue() - damage <= 0)
             {
                 newHealth = 0;
+                Scoreboard.Instance.AddKillFor(conn.identity.GetComponent<NetworkPlayer>().GetName());
+                Scoreboard.Instance.AddDeathFor(netIdentity.GetComponent<NetworkPlayer>().GetName());
                 InitiateRespawn(netIdentity.connectionToClient);
                 OnPlayerDied();
             }
