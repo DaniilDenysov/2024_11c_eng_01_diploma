@@ -31,7 +31,10 @@ namespace Managers
             OnClockTick, 
             () =>
             {
-                respawnButton.SetActive(true);   
+                // Cursor.lockState = CursorLockMode.None;
+                // Cursor.visible = true;
+                /// respawnButton.SetActive(true);   
+                OnRespawn();
             });
             clock.Start(respawnTime);
             respawnScreen.SetActive(true);
