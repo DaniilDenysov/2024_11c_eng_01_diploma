@@ -23,7 +23,7 @@ namespace Managers
 
         public void SpawnPlayerAt (Vector3 position, NetworkConnectionToClient connectionToClient)
         {
-            NetworkServer.AddPlayerForConnection(connectionToClient,Instantiate(playerPrefab,position,Quaternion.identity));
+           NetworkServer.ReplacePlayerForConnection(connectionToClient, Instantiate(playerPrefab, position, Quaternion.identity), ReplacePlayerOptions.Destroy);
         }
     }
 }

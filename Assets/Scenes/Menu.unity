@@ -1150,6 +1150,7 @@ MonoBehaviour:
   playerSpawnMethod: 0
   spawnPrefabs:
   - {fileID: 4177217897757443056, guid: 30d235f6e4c324d4db5ebcc2a4d3e289, type: 3}
+  - {fileID: 5840194963678970969, guid: 88f0d78678d933a4db986125c98310ef, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -2533,6 +2534,7 @@ MonoBehaviour:
   playerSpawnMethod: 0
   spawnPrefabs:
   - {fileID: 4177217897757443056, guid: 30d235f6e4c324d4db5ebcc2a4d3e289, type: 3}
+  - {fileID: 5840194963678970969, guid: 88f0d78678d933a4db986125c98310ef, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2

@@ -107,7 +107,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""7b0f3869-d70c-47eb-8bd3-e38fe3af149d"",
                     ""path"": ""<Keyboard>/r"",
-                    ""interactions"": """",
+                    ""interactions"": ""Press"",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Reload"",

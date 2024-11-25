@@ -56,11 +56,8 @@ namespace HealthSystem
             if (_healthSlider.GetCurrentValue() - damage <= 0)
             {
                 newHealth = 0;
-                if (conn != null)
-                {
-                    OnPlayerDeath(netIdentity.connectionToClient);
-                }
-                NetworkServer.Destroy(gameObject);
+                InitiateRespawn(netIdentity.connectionToClient);
+                OnPlayerDied();
             }
             else
             {
@@ -73,10 +70,15 @@ namespace HealthSystem
         }
 
         [TargetRpc]
-        public void OnPlayerDeath (NetworkConnection target)
+        public void InitiateRespawn (NetworkConnectionToClient conn)
         {
             RespawnManager.Instance.ActivateRespawnMenu();
-            NetworkServer.Destroy(gameObject);
+        }
+
+        [ClientRpc]
+        public void OnPlayerDied ()
+        {
+            gameObject.SetActive(false);
         }
 
         [ClientRpc]

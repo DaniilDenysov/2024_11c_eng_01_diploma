@@ -1,5 +1,7 @@
 using Mirror;
+using Shooting;
 using ShootingSystem.Local;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,34 +40,46 @@ namespace ShootingSystem
         {
             inputActions = new DefaultInput();
             inputActions.Enable();
-            inputActions.Player.Shoot.started += OnShootInputStarted;
-            inputActions.Player.Shoot.performed += OnShootInputStarted;
-            inputActions.Player.Shoot.canceled += OnShootInputCanceled;
+            inputActions.Player.Reload.performed += OnReloaded;
             inputActions.Player.MainWeapon.performed += OnMainWeaponSelected;
             inputActions.Player.SecondaryWeapon.performed += OnSecondaryWeaponSelected;
             lastTimeFired = -model.GetWeaponSO().FireRate;
             Debug.Log(model.GetWeaponSO());
             Debug.Log(model.GetWeaponSO().Mag);
             model.CurrentBullets = model.GetWeaponSO().Mag.GetMaxBullets();
+            view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
+        }
+
+        public void SpawnProjectile(Vector3 from, Vector3 to, NetworkConnectionToClient conn = null)
+        {
+            var projectile = Instantiate(model.GetWeaponSO().Projectile).gameObject;
+            NetworkServer.Spawn(projectile, conn.identity.gameObject);
+            if (projectile.TryGetComponent(out RaycastProjectile projObj))
+            {
+                projObj.Fire(from, to);
+            }
         }
 
         #region Commands
         [Command]
         public void CmdShootRaycast(Vector3 from, Vector3 direction, NetworkConnectionToClient conn = null)
         {
-            direction = direction.normalized;
-            if (TryShoot(from, direction, out RaycastHit hit))
+            
+
+            if (TryShoot(from, direction.normalized, out RaycastHit hit))
             {
                 if (hit.collider.TryGetComponent(out IDamagable damagable))
                 {
                     damagable.DoDamage(model.GetWeaponSO().Damage, conn);
                 }
-              //  SpawnBulletHole(hit.collider.gameObject, hit.point, hit.normal);
-             //   RpcOnShoot(from, hit.point);
+                SpawnProjectile(model.GetShootingPoint().position, hit.point, conn);
+                Debug.Log(hit.point);
+                //  SpawnBulletHole(hit.collider.gameObject, hit.point, hit.normal);
+                 RpcOnShoot(from, hit.point);
             }
             else
             {
-                RpcOnShoot(from, direction.normalized * model.GetWeaponSO().Distance);
+                SpawnProjectile(model.GetShootingPoint().position, direction * model.GetWeaponSO().Distance, conn);
             }
         }
         #endregion
@@ -105,23 +119,11 @@ namespace ShootingSystem
         #endregion
 
         #region InputHandling
-        private void OnShootInputStarted(InputAction.CallbackContext context)
+        private void OnReloaded(InputAction.CallbackContext obj)
         {
             if (!isLocalPlayer) return;
-            if (model.GetWeaponSO().Mode == WeaponSO.ShootingMode.Press)
-            {
-                Shoot();
-            }
-            else
-            {
-                isFiring = true;
-            }
-        }
-
-        private void OnShootInputCanceled(InputAction.CallbackContext context)
-        {
-            if (!isLocalPlayer) return;
-            isFiring = false;
+            model.CurrentBullets = model.GetWeaponSO().Mag.GetMaxBullets();
+            view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
         }
 
         private void OnMainWeaponSelected(InputAction.CallbackContext context)
@@ -173,7 +175,7 @@ namespace ShootingSystem
             if (!CanShoot()) return;
 
             Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, mainCamera.nearClipPlane));
-            mouseWorldPosition += new Vector3(Random.Range(-model.GetWeaponSO().RangeX, model.GetWeaponSO().RangeX), Random.Range(-model.GetWeaponSO().RangeY, model.GetWeaponSO().RangeY));
+            mouseWorldPosition += new Vector3(UnityEngine.Random.Range(-model.GetWeaponSO().RangeX, model.GetWeaponSO().RangeX), UnityEngine.Random.Range(-model.GetWeaponSO().RangeY, model.GetWeaponSO().RangeY));
             Vector3 shootingDirection = (mouseWorldPosition - mainCamera.transform.position).normalized;
             int bulletsShooted = Mathf.Min(model.CurrentBullets, model.GetWeaponSO().BulletsPerShot);
             model.CurrentBullets -= bulletsShooted;

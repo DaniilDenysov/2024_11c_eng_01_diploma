@@ -39,6 +39,7 @@ public class PlayerCameraController : NetworkBehaviour
     {
         camera = GetComponent<Camera>();
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         currentFOV = defaultFOV;
         Camera.main.fieldOfView = defaultFOV;
     }
@@ -107,10 +108,4 @@ public class PlayerCameraController : NetworkBehaviour
         currentFOV = fov;
     }
 
-    private void OnDestroy()
-    {
-        if (!isLocalPlayer) return;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
 }

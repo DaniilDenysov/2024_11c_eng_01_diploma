@@ -1,3 +1,4 @@
+using Shooting;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,10 @@ public class WeaponSO : ScriptableObject
     [Header("View")]
     [SerializeField] private GameObject bulletHole;
     public GameObject BulletHole { get => bulletHole; private set { } }
+
+    [SerializeField] private RaycastProjectile projectile;
+    public RaycastProjectile Projectile { get => projectile; private set { } }
+
     [SerializeField] private Vector3 leftGrip;
     public Vector3 GetLeftGrip() => leftGrip;
     [SerializeField] private Vector3 rightGrip;
