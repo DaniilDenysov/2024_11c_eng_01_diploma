@@ -8,6 +8,7 @@ using UI;
 using General;
 using Steamworks;
 using UnityEngine.Events;
+using System.Threading.Tasks;
 
 namespace Managers  
 {
@@ -26,6 +27,12 @@ namespace Managers
         public override void OnServerConnect(NetworkConnectionToClient conn)
         {
             base.OnServerConnect(conn);
+            
+        }
+
+        public override void OnServerReady(NetworkConnectionToClient conn)
+        {
+            base.OnServerReady(conn);
             SpawnPlayerAt(RespawnManager.Instance.GetRandomSpawnPoint().position, conn);
         }
 

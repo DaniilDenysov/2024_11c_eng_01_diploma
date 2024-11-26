@@ -24,8 +24,6 @@ namespace Managers
         private Callback<LobbyMatchList_t> lobbyListCallback;
         private Callback<LobbyDataUpdate_t> lobbyDataUpdatedCallback;
 
-        private bool lobbyJoined = false;
-
         private void Start()
         {
             if (SteamManager.Initialized)

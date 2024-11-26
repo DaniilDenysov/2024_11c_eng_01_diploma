@@ -28,7 +28,6 @@ namespace HealthSystem
 
         [SerializeField] private bool eneableFading = true;
         private bool isFadeIn = false;
-        private bool isFadeOut = false;
         private float lastShowed = 0f;
 
         /// <summary>
@@ -115,7 +114,6 @@ namespace HealthSystem
         private async void FadeIn()
         {
             isFadeIn = true;
-            isFadeOut = false;
             float fadeTimer = 0f;
             float value = 0f;
             while (value < 1f)
@@ -131,7 +129,6 @@ namespace HealthSystem
         private async void FadeOut()
         {
             isFadeIn = false;
-            isFadeOut = true;
             float fadeTimer = 0f;
             float value = 1f;
             while (value > 0f)

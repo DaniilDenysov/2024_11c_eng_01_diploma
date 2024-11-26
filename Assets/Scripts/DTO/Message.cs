@@ -13,7 +13,6 @@ namespace Messages
         [SerializeField, Range(0, 100f)] private float disposeTime = 10f;
         [SerializeField] private UnityEvent<float> onMessageFade; 
         [SerializeField] private bool isDisposed = false;
-        [SerializeField] private bool fadeOut = true;
 
         public Message Construct (string body)
         {

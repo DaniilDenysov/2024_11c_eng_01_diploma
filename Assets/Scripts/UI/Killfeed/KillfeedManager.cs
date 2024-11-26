@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Kilfeed
 {
-    public class KillfeedManager : NetworkSingleton<KillfeedManager>
+    public class KillfeedManager : Singleton<KillfeedManager>
     {
         [SerializeField] private Transform container;
         [SerializeField] private KillfeedItem itemPrefab;
@@ -18,9 +18,7 @@ namespace Kilfeed
             return this;
         }
 
-
-        [ClientRpc]
-        public void RpcDisplayFeed(string killer, string phrase, string victim)
+        public void DisplayFeed(string killer, string phrase, string victim)
         {
             var item = Instantiate(itemPrefab);
             item.Construct(killer, phrase, victim);

@@ -41,7 +41,6 @@ public class PlayerMovement : NetworkBehaviour
     private bool isJumping;
     private bool isCrouching;
     private bool isSprinting;
-    private bool isCurrentlyCrouching = false;
     private bool isOnSlope = false;
     private DefaultInput inputActions;
 

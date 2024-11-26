@@ -12,18 +12,18 @@ using UnityEngine.SceneManagement;
 [ExecuteInEditMode]
 public class EditorPreCompilationUnit : MonoBehaviour
 {
+    /*
+        private static bool subscribed = false;
+        private static float lastUpdated = 0f, updateRate = 10f;
 
-    private static bool subscribed = false;
-    private static float lastUpdated = 0f, updateRate = 10f;
-
-    /*[InitializeOnLoadMethod]
-    private static void EnsureExistsInScene()
-    {
-        if (subscribed == true) return;
-        Debug.Log("Subscribed");
-        EditorApplication.hierarchyChanged += OnUpdated;
-        subscribed = true;
-    }*/
+        [InitializeOnLoadMethod]
+        private static void EnsureExistsInScene()
+        {
+            if (subscribed == true) return;
+            Debug.Log("Subscribed");
+            EditorApplication.hierarchyChanged += OnUpdated;
+            subscribed = true;
+        }
 
     private static void OnUpdated()
     {
@@ -64,8 +64,6 @@ public class EditorPreCompilationUnit : MonoBehaviour
                 }
             }
         }
-    }
-
-
+  }*/
 }
 #endif

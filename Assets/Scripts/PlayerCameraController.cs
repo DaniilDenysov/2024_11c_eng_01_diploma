@@ -30,14 +30,14 @@ public class PlayerCameraController : NetworkBehaviour
     private Vector3 headBobOffset;        // Offset for head bobbing
 
     [SerializeField] private Transform playerBody;         // Reference to the player's body
-    [SerializeField] private Rigidbody rigidbody;
-    [SerializeField] private Camera camera;
+    [SerializeField] private Rigidbody _rigidbody;
+    [SerializeField] private Camera _camera;
 
     private Vector3 rotationVelocity;     // Used for smooth damping
 
     void Start()
     {
-        camera = GetComponent<Camera>();
+        _camera = GetComponent<Camera>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         currentFOV = defaultFOV;
@@ -48,7 +48,7 @@ public class PlayerCameraController : NetworkBehaviour
     {
         if (!isLocalPlayer)
         {
-            camera.enabled = false;
+            _camera.enabled = false;
             Destroy(this);
             return;
         }
@@ -79,7 +79,7 @@ public class PlayerCameraController : NetworkBehaviour
     {
         if (!enableHeadBob) return;
 
-        if (rigidbody.velocity.magnitude > 0.1f)
+        if (_rigidbody.velocity.magnitude > 0.1f)
         {
             float bobOffset = Mathf.Sin(Time.time * bobFrequency) * bobAmplitude;
             headBobOffset = new Vector3(0f, bobOffset, 0f);

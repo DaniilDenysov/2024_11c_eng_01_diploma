@@ -946,8 +946,8 @@ MonoBehaviour:
   minVerticalAngle: -90
   maxVerticalAngle: 90
   playerBody: {fileID: 7771927710743836739}
-  rigidbody: {fileID: 6053382522458843117}
-  camera: {fileID: 1271712466031110168}
+  _rigidbody: {fileID: 6053382522458843117}
+  _camera: {fileID: 1271712466031110168}
 --- !u!114 &784993188211019852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1002,6 +1002,7 @@ GameObject:
   - component: {fileID: 3517713392978179937}
   - component: {fileID: 552343591031481334}
   - component: {fileID: 7203890696090269563}
+  - component: {fileID: 5404274567786859334}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1038,12 +1039,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c9271e7e719d8345880dc1cca5a41e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 1
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0
   localPlayerInterfaces: {fileID: 1960636912078822929}
   playerCamera: {fileID: 1271712466031110168}
   nickname: 
+  kills: 0
+  assists: 0
+  deaths: 0
   displayName: {fileID: 3172845989025092016}
 --- !u!136 &7846583136030236853
 CapsuleCollider:
@@ -1306,6 +1310,26 @@ MonoBehaviour:
   clientDisplay: {fileID: 7428741211889928338}
   _armorSystem: {fileID: 0}
   _canTakeDamage: 1
+--- !u!114 &5404274567786859334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8841747090581833844}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a898831dd60c4cdfbfd9a6ea5702ed01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  trackedCollider: {fileID: 7846583136030236853}
+  lagCompensationSettings:
+    historyLimit: 6
+    captureInterval: 0.1
+  historyColor: {r: 1, g: 0.07075471, b: 0.07075471, a: 1}
 --- !u!1 &8909411551705574088
 GameObject:
   m_ObjectHideFlags: 0

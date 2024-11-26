@@ -41,7 +41,7 @@ namespace HealthSystem
             }
         }
 
-        [Server]
+        [Command(requiresAuthority = false)] //change to server
         public void DoDamage(float damage, NetworkConnectionToClient conn = null)
         {
             if (!_canTakeDamage)
@@ -58,13 +58,13 @@ namespace HealthSystem
             if (_healthSlider.GetCurrentValue() - damage <= 0)
             {
                 newHealth = 0;
-                var killer = conn.identity.GetComponent<NetworkPlayer>().GetName();
-                var victim = netIdentity.GetComponent<NetworkPlayer>().GetName();
-                Scoreboard.Instance.AddKillFor(killer);
-                Scoreboard.Instance.AddDeathFor(victim);
-                KillfeedManager.Instance.RpcDisplayFeed(killer, KillfeedManager.Instance.GetPhrase(), victim);
+                var killer = conn.identity.GetComponent<NetworkPlayer>();
+                killer.AddKill();
+                var victim = netIdentity.GetComponent<NetworkPlayer>();
+                victim.AddDeath();
+                
                 InitiateRespawn(netIdentity.connectionToClient);
-                OnPlayerDied();
+                OnPlayerDied(killer.GetName(), KillfeedManager.Instance.GetPhrase(),victim.GetName());
             }
             else
             {
@@ -83,9 +83,10 @@ namespace HealthSystem
         }
 
         [ClientRpc]
-        public void OnPlayerDied ()
+        public void OnPlayerDied (string killer,string phrase,string victim)
         {
             gameObject.SetActive(false);
+            KillfeedManager.Instance.DisplayFeed(killer, phrase, victim);
         }
 
         [ClientRpc]

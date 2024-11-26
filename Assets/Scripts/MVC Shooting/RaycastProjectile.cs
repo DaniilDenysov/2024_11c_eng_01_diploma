@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Shooting
 {
     [RequireComponent(typeof(LineRenderer))]
-    public class RaycastProjectile : NetworkBehaviour
+    public class RaycastProjectile : MonoBehaviour
     {
         [SerializeField, Range(0, 100f)] private float _fadeSpeed = 1f;
         private LineRenderer _renderer;
@@ -15,7 +15,6 @@ namespace Shooting
             _renderer = GetComponent<LineRenderer>();
         }
 
-        [ClientRpc]
         public void Fire(Vector3 position, Vector3 hit)
         {
             _renderer.SetPosition(0, position);
@@ -48,7 +47,7 @@ namespace Shooting
             _renderer.endWidth = 0f;
             _renderer.material.color = new Color(initialColor.r, initialColor.g, initialColor.b, 0);
 
-            NetworkServer.Destroy(gameObject);
+            if (NetworkServer.active) NetworkServer.Destroy(gameObject);
         }
     }
 }

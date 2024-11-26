@@ -50,49 +50,86 @@ namespace ShootingSystem
             view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
         }
 
-        public void SpawnProjectile(Vector3 from, Vector3 to, NetworkConnectionToClient conn = null)
+
+        #region Commands
+
+        [Command]
+        private void OnShoted (NetworkIdentity target, Vector3 from, Vector3 hitpoint)
         {
-            var projectile = Instantiate(model.GetWeaponSO().Projectile).gameObject;
-            NetworkServer.Spawn(projectile, conn.identity.gameObject);
-            if (projectile.TryGetComponent(out RaycastProjectile projObj))
+            if (!target.TryGetComponent(out LagCompensator compensator)) return;
+
+            if (!compensator.RaycastCheck(connectionToClient,from, hitpoint,0f,model.GetHitLayerMask(),out RaycastHit hit)) return;
+
+            if (hit.collider.TryGetComponent(out IDamagable damagable))
             {
-                projObj.Fire(from, to);
+                damagable.DoDamage(model.GetWeaponSO().Damage, connectionToClient);
             }
         }
 
-        #region Commands
         [Command]
+        private void CmdSpawnBulletHole(Vector3 hitPosition, Vector3 hitNormal, NetworkIdentity hitObject)
+        {
+            RpcSpawnBulletHole(hitPosition,hitNormal, hitObject);
+        }
+
+        [Command]
+        private void CmdSpawnProjectile(Vector3 from, Vector3 to)
+        {
+            RpcSpawnProjectile(from, to);
+        }
+
+        #endregion
+
+
+        #region Client
+
+        [Client]
+        public void ShootRaycast(Vector3 from, Vector3 direction, NetworkConnectionToClient conn = null)
+        {
+            if (TryShoot(from, direction.normalized, out RaycastHit hit))
+            {
+                if (hit.collider.TryGetComponent(out NetworkIdentity identity)) OnShoted(identity,from, hit.point);
+                CmdSpawnProjectile(model.GetShootingPoint().position, hit.point);
+                CmdSpawnBulletHole(hit.point, hit.normal, hit.collider.GetComponent<NetworkIdentity>());
+            }
+            else
+            {
+                CmdSpawnProjectile(model.GetShootingPoint().position, direction * model.GetWeaponSO().Distance);
+            }
+        }
+
+
+   
         public void CmdShootRaycast(Vector3 from, Vector3 direction, NetworkConnectionToClient conn = null)
         {
-            
-
             if (TryShoot(from, direction.normalized, out RaycastHit hit))
             {
                 if (hit.collider.TryGetComponent(out IDamagable damagable))
                 {
                     damagable.DoDamage(model.GetWeaponSO().Damage, conn);
                 }
-                SpawnProjectile(model.GetShootingPoint().position, hit.point, conn);
-                RpcSpawnBulletHole(hit.point, hit.normal, hit.collider.GetComponent<NetworkIdentity>());
-                //  SpawnBulletHole(hit.collider.gameObject, hit.point, hit.normal);
-                RpcOnShoot(from, hit.point);
+                CmdSpawnProjectile(model.GetShootingPoint().position, hit.point);
+                CmdSpawnBulletHole(hit.point, hit.normal, hit.collider.GetComponent<NetworkIdentity>());
             }
             else
             {
-                SpawnProjectile(model.GetShootingPoint().position, direction * model.GetWeaponSO().Distance, conn);
+                CmdSpawnProjectile(model.GetShootingPoint().position, direction * model.GetWeaponSO().Distance);
             }
         }
+
         #endregion
 
-
-
         #region RPCs
-        [ClientRpc]
-        private void RpcOnShoot(Vector3 from, Vector3 hitPoint)
-        {
-            Debug.DrawLine(from, hitPoint, Color.red, 5.0f);
-        }
 
+        [ClientRpc]
+        public void RpcSpawnProjectile(Vector3 from, Vector3 to)
+        {
+            var projectile = Instantiate(model.GetWeaponSO().Projectile).gameObject;
+            if (projectile.TryGetComponent(out RaycastProjectile projObj))
+            {
+                projObj.Fire(from, to);
+            }
+        }
 
         [ClientRpc]
         private void RpcSpawnBulletHole(Vector3 hitPosition, Vector3 hitNormal, NetworkIdentity hitObject)
@@ -163,7 +200,6 @@ namespace ShootingSystem
             }
             if (!CanShoot()) return;
 
-            Vector3 shootingDirection = mainCamera.transform.forward;
             int bulletsShooted = Mathf.Min(model.CurrentBullets, model.GetWeaponSO().BulletsPerShot);
             model.CurrentBullets -= bulletsShooted;
             lastTimeFired = Time.time;
@@ -177,7 +213,7 @@ namespace ShootingSystem
                     0
                 );
                 spread = mainCamera.transform.TransformDirection(spread);
-                Vector3 finalDirection = (shootingDirection + spread).normalized;
+                Vector3 finalDirection =  mainCamera.transform.forward + spread;
                 CmdShootRaycast(mainCamera.transform.position, finalDirection);
             }
         }

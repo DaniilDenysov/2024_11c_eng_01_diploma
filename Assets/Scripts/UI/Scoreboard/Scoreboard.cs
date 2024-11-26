@@ -13,7 +13,7 @@ namespace Score
     public class Scoreboard : NetworkSingleton<Scoreboard>
     {
         //change to dictionary
-        [SerializeField] private List<PlayerStats> players = new List<PlayerStats>();
+      //  [SerializeField] private List<PlayerStats> players = new List<PlayerStats>();
         [SerializeField] private GameObject scoreboardBody;
         [SerializeField] private Transform labelContainer;
         [SerializeField] private ScoreboardLabel scoreboardLabel;
@@ -29,18 +29,17 @@ namespace Score
         private void OnScoreboardClosed(InputAction.CallbackContext obj)
         {
             scoreboardBody.SetActive(false);
-            ClearContainer();
         }
 
         private void OnScoreboardOpened(InputAction.CallbackContext obj)
         {
-            Refresh();
             scoreboardBody.SetActive(true);
         }
 
         public void Refresh()
         {
-            foreach (var player in players)
+            ClearContainer();
+            foreach (var player in FindObjectsOfType(typeof(NetworkPlayer)) as NetworkPlayer [])
             {
                 CreateLabel(player).transform.SetParent(labelContainer.transform);
             }
@@ -54,49 +53,10 @@ namespace Score
             }
         }
 
-        [ClientRpc]
-        public void AddKillFor (string nickname)
-        {
-            var player = players.FirstOrDefault((p) => p.Nickname == nickname);
-            if (player != null)
-            {
-                player.KillCount++;
-            }
-            else
-            {
-                player = AddPlayer(nickname);
-                player.KillCount++;
-            }
-        }
-
-        [ClientRpc]
-        public void AddDeathFor(string nickname)
-        {
-            var player = players.FirstOrDefault((p) => p.Nickname == nickname);
-            if (player != null)
-            {
-                player.DeathCount++;
-            }
-            else
-            {
-                player = AddPlayer(nickname);
-                player.DeathCount++;
-            }
-        }
-
-        public PlayerStats AddPlayer(string nickname)
-        {
-            if (players.FirstOrDefault((p) => p.Nickname == nickname) != null) return null;
-            var newPlayer = new PlayerStats();
-            newPlayer.Nickname = nickname;
-            players.Add(newPlayer);
-            return newPlayer;
-        }
-
-        public GameObject CreateLabel (PlayerStats playerStats)
+        public GameObject CreateLabel (NetworkPlayer playerStats)
         {
             var label = Instantiate(scoreboardLabel);
-            label.Construct(playerStats.Nickname,playerStats.KillCount,playerStats.AssistCount,playerStats.DeathCount);
+            label.Construct(playerStats.GetName(),playerStats.GetKillCount(),playerStats.GetKillCount(), playerStats.GetDeathCount());
             return label.gameObject;
         }
 

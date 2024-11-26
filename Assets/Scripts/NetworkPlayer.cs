@@ -3,6 +3,7 @@ using Managers;
 using Mirror;
 using Score;
 using Steamworks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -15,60 +16,87 @@ public class NetworkPlayer : NetworkBehaviour
     public static NetworkPlayer LocalPlayerInstance;
 
     [SerializeField, SyncVar(hook = nameof(OnNicknameChanged))] private string nickname; 
+    [SerializeField, SyncVar(hook = nameof(OnKillCountChanged))] private int kills; 
+    [SerializeField, SyncVar(hook = nameof(OnAssistCountChanged))] private int assists; 
+    [SerializeField, SyncVar(hook = nameof(OnDeathCountChanged))] private int deaths;
+    
 
     [SerializeField] private TMP_Text displayName;
 
 
-    [Command]
-    public void CmdAddPlayer (string newNickname)
+    private void OnKillCountChanged(int oldCount, int newCount)
     {
-        Scoreboard.Instance.AddPlayer(newNickname);
+        Scoreboard.Instance.Refresh();
     }
 
-  
-
-    public override void OnStartClient()
+    private void OnAssistCountChanged(int oldCount, int newCount)
     {
-        base.OnStartClient();
-       
+        Scoreboard.Instance.Refresh();
+    }
+
+    private void OnDeathCountChanged(int oldCount, int newCount)
+    {
+        Scoreboard.Instance.Refresh();
     }
 
     private void OnNicknameChanged(string oldName, string newName)
     {
         Debug.Log($"Nickname changed from {oldName} to {newName}");
         displayName.text = newName;
-        Scoreboard.Instance.AddPlayer(newName);
+        Scoreboard.Instance.Refresh();
         if (isOwned)
         {
             displayName.gameObject.SetActive(false);
         }
     }
 
+    [Server]
+    public void AddKill()
+    {
+        kills++;
+    }
 
     [Server]
-    public void SetNickname (string newName)
+    public void AddDeath()
     {
-        nickname = newName;
+        deaths++;
     }
+
+    [Command]
+    public void CmdSetNickname(string nickname) => this.nickname = nickname;
 
     public string GetName() => nickname;
 
     public override void OnStartLocalPlayer()
     {
         base.OnStartLocalPlayer();
-        localPlayerInterfaces.SetActive(true);
         if (!isLocalPlayer) return;
+        localPlayerInterfaces.SetActive(true);
         if (SteamManager.Initialized)
         {
-            nickname = SteamFriends.GetPersonaName();
-            CmdAddPlayer(nickname);
+            CmdSetNickname(SteamFriends.GetPersonaName());
         }
         else
         {
-            Debug.LogError($"Steam not initialized!");
+            CmdSetNickname("Steam error");
         }
 
         LocalPlayerInstance = this;
+    }
+
+    public int GetAssistCount()
+    {
+        return assists;
+    }
+
+    public int GetDeathCount()
+    {
+        return deaths;
+    }
+
+    internal int GetKillCount()
+    {
+        return kills;
     }
 
     public override void OnStopAuthority()
