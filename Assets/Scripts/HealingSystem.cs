@@ -32,12 +32,14 @@ namespace HealthSystem
             inputActions = new DefaultInput();
             inputActions.Enable();
 
-            inputActions.Player.Heal.started += context => StartActiveHealing();
-            inputActions.Player.Heal.canceled += context => StopActiveHealing();
+            inputActions.Player.Heal.started += context => { if (isLocalPlayer) StartActiveHealing(); };
+            inputActions.Player.Heal.canceled += context => { if (isLocalPlayer) StopActiveHealing(); };
         }
 
+    
         private void Update()
         {
+            if (!NetworkServer.active) return;
             if (Time.time > lastDamageTime + passiveHealDelay && !isActiveHealing && !isPassiveHealing)
             {
                 StartPassiveHealing();
@@ -53,6 +55,7 @@ namespace HealthSystem
 
         #region Active Healing
 
+        [Command]
         private void StartActiveHealing()
         {
             if (isActiveHealing || healthSystem.GetCurrentHealth() >= healthSystem.GetMaxHealth())
@@ -62,6 +65,7 @@ namespace HealthSystem
             activeHealingCoroutine = StartCoroutine(ActiveHealingCoroutine());
         }
 
+        [Command]
         private void StopActiveHealing()
         {
             if (!isActiveHealing) return;
