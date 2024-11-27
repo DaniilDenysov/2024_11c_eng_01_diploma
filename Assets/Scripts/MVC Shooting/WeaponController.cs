@@ -213,6 +213,8 @@ namespace ShootingSystem
             if (!CanShoot()) return;
             var weapon = model.GetWeaponSO();
             int bulletsShooted = Mathf.Min(model.CurrentBullets, weapon.BulletsPerShot);
+            model.GetMuzzleLight().Play();
+            model.GetBulletCase().Play();
             model.CurrentBullets -= bulletsShooted;
             lastTimeFired = Time.time;
             view.SetCurrentBullets(model.CurrentBullets, weapon.Mag.GetMaxBullets());
