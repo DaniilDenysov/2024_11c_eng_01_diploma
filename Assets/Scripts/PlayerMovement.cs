@@ -122,7 +122,7 @@ public class PlayerMovement : NetworkBehaviour
             movementSpeed = crouchSpeed;
         }
 
-        if(isGrounded && isSprinting)
+        if(isGrounded && isSprinting && !isCrouching)
         {
             state = MovementState.sprinting;
             movementSpeed = sprintSpeed;;
@@ -143,7 +143,7 @@ public class PlayerMovement : NetworkBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        if(isJumping && isReadyToJump && isGrounded)
+        if(isJumping && isReadyToJump && isGrounded && !isCrouching)
         {
             isReadyToJump = false;
             Jump();
