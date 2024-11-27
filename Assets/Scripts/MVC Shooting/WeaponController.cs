@@ -165,6 +165,8 @@ namespace ShootingSystem
 
             Vector3 shootingDirection = mainCamera.transform.forward;
             int bulletsShooted = Mathf.Min(model.CurrentBullets, model.GetWeaponSO().BulletsPerShot);
+            model.GetMuzzleLight().Play();
+            model.GetBulletCase().Play(); // Bullet cases here, if nessery move elseplace
             model.CurrentBullets -= bulletsShooted;
             lastTimeFired = Time.time;
             view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
