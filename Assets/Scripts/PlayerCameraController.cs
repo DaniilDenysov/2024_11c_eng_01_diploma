@@ -23,11 +23,17 @@ public class PlayerCameraController : NetworkBehaviour
     public float minVerticalAngle = -90f; // Minimum pitch angle
     public float maxVerticalAngle = 90f;  // Maximum pitch angle
 
+    [Header("Recoil Settings")]
+    public float recoilRecoverySpeed = 5f; // Speed at which the recoil recovers
+
     private float xRotation = 0f;         // Vertical rotation
     private float yRotation = 0f;         // Horizontal rotation
     private float currentFOV;             // Current FOV
     private Vector3 targetRotation;       // Target rotation for smoothing
     private Vector3 headBobOffset;        // Offset for head bobbing
+
+    private Vector2 currentRecoilOffset = Vector2.zero; // Current recoil offset
+    private Vector2 targetRecoilOffset = Vector2.zero;  // Target recoil offset
 
     [SerializeField] private Transform playerBody;         // Reference to the player's body
     [SerializeField] private Rigidbody _rigidbody;
@@ -52,9 +58,11 @@ public class PlayerCameraController : NetworkBehaviour
             Destroy(this);
             return;
         }
+
         HandleMouseLook();
         HandleFieldOfView();
         HandleHeadBobbing();
+        RecoverRecoil();
     }
 
     void HandleMouseLook()
@@ -64,10 +72,11 @@ public class PlayerCameraController : NetworkBehaviour
         xRotation -= (invertY ? -mouseY : mouseY);
         xRotation = Mathf.Clamp(xRotation, minVerticalAngle, maxVerticalAngle);
         yRotation += mouseX;
-        transform.localEulerAngles = new Vector3(xRotation, 0f, 0f);
+        Quaternion recoilRotation = Quaternion.Euler(-currentRecoilOffset.y, currentRecoilOffset.x, 0);
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f) * recoilRotation;
         playerBody.localEulerAngles = new Vector3(0f, yRotation, 0f);
     }
-
+                        
     void HandleFieldOfView()
     {
         float targetFOV = Input.GetMouseButton(1) ? zoomFOV : defaultFOV;
@@ -92,6 +101,17 @@ public class PlayerCameraController : NetworkBehaviour
         transform.localPosition = Vector3.Lerp(transform.localPosition, headBobOffset, Time.deltaTime * 5f);
     }
 
+    public void ApplyRecoil(Vector2 recoilOffset)
+    {
+        targetRecoilOffset += recoilOffset;
+    }
+
+    private void RecoverRecoil()
+    {
+        currentRecoilOffset = Vector2.Lerp(currentRecoilOffset, targetRecoilOffset, Time.deltaTime * recoilRecoverySpeed);
+        targetRecoilOffset = Vector2.Lerp(targetRecoilOffset, Vector2.zero, Time.deltaTime * recoilRecoverySpeed);
+    }
+
     public void SetMouseSensitivity(float sensitivity)
     {
         mouseSensitivity = sensitivity;
@@ -107,5 +127,4 @@ public class PlayerCameraController : NetworkBehaviour
         defaultFOV = fov;
         currentFOV = fov;
     }
-
 }

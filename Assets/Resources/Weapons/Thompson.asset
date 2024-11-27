@@ -25,6 +25,9 @@ MonoBehaviour:
   burst: 1
   bulletsPerShot: 1
   mode: 1
+  accuracy: 50
+  verticalRecoil: 1
+  horizontalRecoil: 0
   rangeX: 0.05
   rangeY: 0.05
   scopeTime: 3

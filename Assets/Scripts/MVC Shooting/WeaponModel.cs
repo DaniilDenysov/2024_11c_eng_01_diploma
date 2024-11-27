@@ -14,6 +14,28 @@ namespace ShootingSystem
 
         public int CurrentBullets;
 
+        private int currentSpreadIndex = 0;
+
+        public void AdvanceSpreadPoint()
+        {
+          /*  if (currentWeaponSO.SpreadPoints.Count > 0 && currentSpreadIndex < currentWeaponSO.SpreadPoints.Count - 1)
+            {
+                currentSpreadIndex++;
+            }*/
+        }
+
+        public void RetreatSpreadPoint()
+        {
+            if (currentSpreadIndex > 0)
+            {
+                currentSpreadIndex--;
+            }
+        }
+
+        public void ResetSpreadIndex()
+        {
+            currentSpreadIndex = 0;
+        }
 
         public void SetWeaponSO (int i)
         {

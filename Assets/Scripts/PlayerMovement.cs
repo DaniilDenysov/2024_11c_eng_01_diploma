@@ -5,6 +5,7 @@ using System;
 using UnityEngine;
 using Mirror;
 
+//change fields to private
 public class PlayerMovement : NetworkBehaviour
 {
     [Header("Movement")]
@@ -32,6 +33,7 @@ public class PlayerMovement : NetworkBehaviour
     [Header("GroundCheck")]
     [SerializeField] public float playerHeight;
     [SerializeField] public LayerMask whatIsGround;
+    [SerializeField] public LayerMask wallsLayers;
     private bool isGrounded;
 
   //  public Transform orientation;
@@ -176,26 +178,27 @@ public class PlayerMovement : NetworkBehaviour
             Vector3 targetVelocity = movementDirection.normalized * movementSpeed;
             Vector3 smoothedVelocity = Vector3.Lerp(currentVelocity, targetVelocity, Time.fixedDeltaTime * 10f);
 
-
-            if (isOnSlope && !exitingSlope)
+            if (!Physics.Raycast(transform.position, new Vector3(smoothedVelocity.x, 0, smoothedVelocity.z),1f,wallsLayers))
             {
-                Vector3 slopeForce = GetSlopeMovementDirection() * movementSpeed;
-                rb.AddForce(slopeForce, ForceMode.Force);
-            }
-            else if (isGrounded)
-            {
-                Vector3 horizontalVelocity = movementDirection.normalized * movementSpeed;
-                rb.velocity = new Vector3(horizontalVelocity.x, rb.velocity.y, horizontalVelocity.z);
-            }
-            else if (!isGrounded)
-            {
-                Vector3 airTargetVelocity = movementDirection.normalized * movementSpeed * airMultiplier;
-                Vector3 airSmoothedVelocity = Vector3.Lerp(new Vector3(rb.velocity.x, 0, rb.velocity.z), airTargetVelocity, Time.fixedDeltaTime * 5f);
-                rb.velocity = new Vector3(smoothedVelocity.x, rb.velocity.y, smoothedVelocity.z);
+                if (isOnSlope && !exitingSlope)
+                {
+                    Vector3 slopeForce = GetSlopeMovementDirection() * movementSpeed;
+                    rb.AddForce(slopeForce, ForceMode.Force);
+                }
+                else if (isGrounded)
+                {
+                    Vector3 horizontalVelocity = movementDirection.normalized * movementSpeed;
+                    rb.velocity = new Vector3(horizontalVelocity.x, rb.velocity.y, horizontalVelocity.z);
+                }
+                else if (!isGrounded)
+                {
+                    Vector3 airTargetVelocity = movementDirection.normalized * movementSpeed * airMultiplier;
+                    Vector3 airSmoothedVelocity = Vector3.Lerp(new Vector3(rb.velocity.x, 0, rb.velocity.z), airTargetVelocity, Time.fixedDeltaTime * 5f);
+                    rb.velocity = new Vector3(smoothedVelocity.x, rb.velocity.y, smoothedVelocity.z);
 
-                rb.AddForce(movementDirection.normalized * movementSpeed * 0.1f, ForceMode.Impulse);
+                    rb.AddForce(movementDirection.normalized * movementSpeed * 0.1f, ForceMode.Impulse);
+                }
             }
-
             rb.drag = isGrounded ? groundDrag : 0;
         }
     }

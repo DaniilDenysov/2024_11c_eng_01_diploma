@@ -11,9 +11,19 @@ namespace ShootingSystem
 { 
     public class WeaponController : NetworkBehaviour
     {
-        [SerializeField] private Camera mainCamera;
+        [SerializeField] private PlayerCameraController mainCamera;
         [SerializeField] private WeaponView view;
         [SerializeField] private WeaponModel model;
+
+
+        //move to model
+        [SerializeField] private float recoilIntensity = 1.5f;
+        [SerializeField] private float recoilRecoverySpeed = 5f; 
+
+        private Vector3 targetRecoilOffset = Vector3.zero;
+        private Vector3 currentRecoilOffset = Vector3.zero;
+        private float recoilResetSpeed = 5f;
+
         private DefaultInput inputActions;
         private bool isFiring;
         private float lastTimeFired;
@@ -29,12 +39,14 @@ namespace ShootingSystem
         private void Update()
         {
             if (!isLocalPlayer) return;
+          //  RecoverRecoil();
             if (inputActions.Player.Shoot.ReadValue<float>() == 0)
             {
                 return;
             }
             Shoot();
         }
+
 
         public void Construct()
         {
@@ -199,21 +211,23 @@ namespace ShootingSystem
                 return;
             }
             if (!CanShoot()) return;
-
-            int bulletsShooted = Mathf.Min(model.CurrentBullets, model.GetWeaponSO().BulletsPerShot);
+            var weapon = model.GetWeaponSO();
+            int bulletsShooted = Mathf.Min(model.CurrentBullets, weapon.BulletsPerShot);
             model.CurrentBullets -= bulletsShooted;
             lastTimeFired = Time.time;
-            view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
-
+            view.SetCurrentBullets(model.CurrentBullets, weapon.Mag.GetMaxBullets());
+            mainCamera.ApplyRecoil(new Vector2(weapon.HorizontalRecoil,weapon.VerticalRecoil));
             for (int i = 0; i < bulletsShooted; i++)
             {
-                Vector3 spread = new Vector3(
-                    UnityEngine.Random.Range(-model.GetWeaponSO().RangeX, model.GetWeaponSO().RangeX),
-                    UnityEngine.Random.Range(-model.GetWeaponSO().RangeY, model.GetWeaponSO().RangeY),
+                bool applyAccuracy = UnityEngine.Random.Range(0, 100f) >= weapon.Accuracy;
+                Vector3 spread = applyAccuracy ? new Vector3(
+                    UnityEngine.Random.Range(-weapon.RangeX, weapon.RangeX),
+                    UnityEngine.Random.Range(-weapon.RangeY, weapon.RangeY),
                     0
-                );
+                ) : Vector3.zero;
                 spread = mainCamera.transform.TransformDirection(spread);
                 Vector3 finalDirection =  mainCamera.transform.forward + spread;
+ 
                 CmdShootRaycast(mainCamera.transform.position, finalDirection);
             }
         }

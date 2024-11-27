@@ -945,6 +945,7 @@ MonoBehaviour:
   bobAmplitude: 0.05
   minVerticalAngle: -90
   maxVerticalAngle: 90
+  recoilRecoverySpeed: 5
   playerBody: {fileID: 7771927710743836739}
   _rigidbody: {fileID: 6053382522458843117}
   _camera: {fileID: 1271712466031110168}
@@ -1003,7 +1004,7 @@ GameObject:
   - component: {fileID: 552343591031481334}
   - component: {fileID: 7203890696090269563}
   - component: {fileID: 5404274567786859334}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1104,9 +1105,11 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  mainCamera: {fileID: 1271712466031110168}
+  mainCamera: {fileID: 1958971098651905617}
   view: {fileID: 2831094889712316369}
   model: {fileID: 6061837786469534120}
+  recoilIntensity: 1.5
+  recoilRecoverySpeed: 5
 --- !u!114 &6061837786469534120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1180,6 +1183,9 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 64
+  wallsLayers:
+    serializedVersion: 2
+    m_Bits: 119
   state: 0
 --- !u!54 &6053382522458843117
 Rigidbody:
