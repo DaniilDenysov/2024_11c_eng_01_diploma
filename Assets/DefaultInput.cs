@@ -98,6 +98,15 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": ""Press,Hold"",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Heal"",
+                    ""type"": ""Button"",
+                    ""id"": ""29670c12-d427-4cb1-ab26-ff1d26e3d6f6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Hold"",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -188,6 +197,17 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""action"": ""Scoreboard"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ace66d42-34a4-4c69-8f75-d83803bc1e42"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Heal"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -204,6 +224,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         m_Player_Crouch = m_Player.FindAction("Crouch", throwIfNotFound: true);
         m_Player_Run = m_Player.FindAction("Run", throwIfNotFound: true);
         m_Player_Scoreboard = m_Player.FindAction("Scoreboard", throwIfNotFound: true);
+        m_Player_Heal = m_Player.FindAction("Heal", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -273,6 +294,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Crouch;
     private readonly InputAction m_Player_Run;
     private readonly InputAction m_Player_Scoreboard;
+    private readonly InputAction m_Player_Heal;
     public struct PlayerActions
     {
         private @DefaultInput m_Wrapper;
@@ -285,6 +307,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         public InputAction @Crouch => m_Wrapper.m_Player_Crouch;
         public InputAction @Run => m_Wrapper.m_Player_Run;
         public InputAction @Scoreboard => m_Wrapper.m_Player_Scoreboard;
+        public InputAction @Heal => m_Wrapper.m_Player_Heal;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -318,6 +341,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Scoreboard.started += instance.OnScoreboard;
             @Scoreboard.performed += instance.OnScoreboard;
             @Scoreboard.canceled += instance.OnScoreboard;
+            @Heal.started += instance.OnHeal;
+            @Heal.performed += instance.OnHeal;
+            @Heal.canceled += instance.OnHeal;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -346,6 +372,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Scoreboard.started -= instance.OnScoreboard;
             @Scoreboard.performed -= instance.OnScoreboard;
             @Scoreboard.canceled -= instance.OnScoreboard;
+            @Heal.started -= instance.OnHeal;
+            @Heal.performed -= instance.OnHeal;
+            @Heal.canceled -= instance.OnHeal;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -373,5 +402,6 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         void OnCrouch(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
         void OnScoreboard(InputAction.CallbackContext context);
+        void OnHeal(InputAction.CallbackContext context);
     }
 }
