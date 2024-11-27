@@ -1004,6 +1004,7 @@ GameObject:
   - component: {fileID: 552343591031481334}
   - component: {fileID: 7203890696090269563}
   - component: {fileID: 5404274567786859334}
+  - component: {fileID: 3991562799780489924}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -1170,7 +1171,7 @@ MonoBehaviour:
   syncInterval: 0
   movementSpeed: 7
   walkSpeed: 7
-  sprintSpeed: 10
+  sprintSpeed: 11
   groundDrag: 1
   jumpForce: 3
   jumpCooldown: 0.5
@@ -1336,6 +1337,26 @@ MonoBehaviour:
     historyLimit: 6
     captureInterval: 0.1
   historyColor: {r: 1, g: 0.07075471, b: 0.07075471, a: 1}
+--- !u!114 &3991562799780489924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8841747090581833844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37f0c68cf2ffbc14d9146bae05db4fb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  activeHealSpeed: 20
+  activeHealDelay: 0.5
+  shootCooldownAfterHeal: 0.5
+  passiveHealSpeed: 4
+  passiveHealDelay: 6
 --- !u!1 &8909411551705574088
 GameObject:
   m_ObjectHideFlags: 0

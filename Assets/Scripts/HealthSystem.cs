@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using HealthSystem;
 using ShootingSystem.Local;
 using Mirror;
 using Managers;
@@ -14,6 +15,7 @@ namespace HealthSystem
         private CustomSlider _healthSlider;
         [SerializeField] private HealthSystem _armorSystem;
         [SerializeField] private bool _canTakeDamage = true;
+        private HealingSystem healingSystem;
 
 
 
@@ -21,6 +23,12 @@ namespace HealthSystem
         {
             base.OnStartServer();
             SetSlider();
+
+            healingSystem = GetComponent<HealingSystem>();
+            if (healingSystem == null)
+            {
+                Debug.LogError("HealingSystem is missing from the GameObject!");
+            }
         }
 
         public override void OnStartClient()
@@ -69,6 +77,11 @@ namespace HealthSystem
             else
             {
                 newHealth = _healthSlider.GetCurrentValue() - damage;
+
+                if (healingSystem != null)
+                {
+                    healingSystem.NotifyDamageTaken();
+                }
             }
 
             UpdateHealthBar(newHealth);
@@ -106,7 +119,7 @@ namespace HealthSystem
 
 
         [ClientRpc]
-        private void UpdateHealthBar(float health)
+        public void UpdateHealthBar(float health)
         {
             _healthSlider.SetCurrentValue(health);
         }
