@@ -90,6 +90,11 @@ namespace ShootingSystem
             RpcSpawnProjectile(from, to);
         }
 
+        private void CmdSpawnShootingVFX()
+        {
+            RpcSpawnShootingVFX();
+        }
+
         #endregion
 
 
@@ -98,6 +103,7 @@ namespace ShootingSystem
         [Client]
         public void ShootRaycast(Vector3 from, Vector3 direction, NetworkConnectionToClient conn = null)
         {
+            CmdSpawnShootingVFX();
             if (TryShoot(from, direction.normalized, out RaycastHit hit))
             {
                 if (hit.collider.TryGetComponent(out NetworkIdentity identity)) OnShoted(identity,from, hit.point);
@@ -114,6 +120,7 @@ namespace ShootingSystem
    
         public void CmdShootRaycast(Vector3 from, Vector3 direction, NetworkConnectionToClient conn = null)
         {
+            CmdSpawnShootingVFX();
             if (TryShoot(from, direction.normalized, out RaycastHit hit))
             {
                 if (hit.collider.TryGetComponent(out IDamagable damagable))
@@ -152,6 +159,13 @@ namespace ShootingSystem
                 bulletHole.transform.SetParent(hitObject.transform);
             }
             Destroy(bulletHole, 3f);
+        }
+
+        [ClientRpc]
+        private void RpcSpawnShootingVFX()
+        {
+            model.GetBulletCase().Play();
+            model.GetMuzzleLight().Play();
         }
 
         #endregion
@@ -213,8 +227,6 @@ namespace ShootingSystem
             if (!CanShoot()) return;
             var weapon = model.GetWeaponSO();
             int bulletsShooted = Mathf.Min(model.CurrentBullets, weapon.BulletsPerShot);
-            model.GetMuzzleLight().Play();
-            model.GetBulletCase().Play();
             model.CurrentBullets -= bulletsShooted;
             lastTimeFired = Time.time;
             view.SetCurrentBullets(model.CurrentBullets, weapon.Mag.GetMaxBullets());
