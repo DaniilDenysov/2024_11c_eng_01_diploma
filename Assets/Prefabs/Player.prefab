@@ -5168,6 +5168,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3666377830665901860}
+  - component: {fileID: 8876469799122695956}
   m_Layer: 0
   m_Name: Thompson
   m_TagString: Untagged
@@ -5195,6 +5196,21 @@ Transform:
   - {fileID: 8699487314895551809}
   m_Father: {fileID: 4768168765381117761}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8876469799122695956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4155212335830863262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14250bd97791d5f4f9e1d484c2feb994, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  intensity: 0.6
+  smoothness: 3
+  maxOffset: 0.03
 --- !u!1 &4841197354405391808
 GameObject:
   m_ObjectHideFlags: 0
@@ -10912,6 +10928,9 @@ MonoBehaviour:
   localPlayerInterfaces: {fileID: 1960636912078822929}
   playerCamera: {fileID: 1271712466031110168}
   nickname: 
+  kills: 0
+  assists: 0
+  deaths: 0
   displayName: {fileID: 3172845989025092016}
 --- !u!136 &7846583136030236853
 CapsuleCollider:

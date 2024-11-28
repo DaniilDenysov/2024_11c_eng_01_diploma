@@ -1,5 +1,6 @@
 using UnityEngine;
-using System.Collections;
+using System.Threading;
+using System.Threading.Tasks;
 using Mirror;
 
 namespace HealthSystem
@@ -22,8 +23,8 @@ namespace HealthSystem
         private HealthSystem healthSystem;
         private DefaultInput inputActions;
 
-        private Coroutine activeHealingCoroutine;
-        private Coroutine passiveHealingCoroutine;
+        private CancellationTokenSource activeHealingCts;
+        private CancellationTokenSource passiveHealingCts;
 
         #region Basic Class
         private void Start()
@@ -36,7 +37,18 @@ namespace HealthSystem
             inputActions.Player.Heal.canceled += context => { if (isLocalPlayer) StopActiveHealing(); };
         }
 
-    
+        private void OnDisable()
+        {
+            activeHealingCts?.Cancel();
+            passiveHealingCts?.Cancel();
+        }
+
+        private void OnDestroy()
+        {
+            activeHealingCts?.Cancel();
+            passiveHealingCts?.Cancel();
+        }
+
         private void Update()
         {
             if (!NetworkServer.active) return;
@@ -62,7 +74,8 @@ namespace HealthSystem
                 return;
 
             isActiveHealing = true;
-            activeHealingCoroutine = StartCoroutine(ActiveHealingCoroutine());
+            activeHealingCts = new CancellationTokenSource();
+            _ = ActiveHealingAsync(activeHealingCts.Token);
         }
 
         [Command]
@@ -71,31 +84,37 @@ namespace HealthSystem
             if (!isActiveHealing) return;
 
             isActiveHealing = false;
-            if (activeHealingCoroutine != null)
-                StopCoroutine(activeHealingCoroutine);
+            activeHealingCts?.Cancel();
 
-            StartCoroutine(ShootingCooldownCoroutine());
+            _ = ShootingCooldownAsync();
         }
 
-        private IEnumerator ActiveHealingCoroutine()
+        private async Task ActiveHealingAsync(CancellationToken token)
         {
-            yield return new WaitForSeconds(activeHealDelay);
-
-            while (isActiveHealing && healthSystem.GetCurrentHealth() < healthSystem.GetMaxHealth())
+            try
             {
-                float newHealth = Mathf.Min(healthSystem.GetCurrentHealth() + activeHealSpeed * Time.deltaTime, healthSystem.GetMaxHealth());
-                healthSystem.UpdateHealthBar(newHealth);
+                await Task.Delay((int)(activeHealDelay * 1000), token);
 
-                yield return null;
+                while (!token.IsCancellationRequested && isActiveHealing && healthSystem.GetCurrentHealth() < healthSystem.GetMaxHealth())
+                {
+                    float newHealth = Mathf.Min(healthSystem.GetCurrentHealth() + activeHealSpeed * Time.deltaTime, healthSystem.GetMaxHealth());
+                    healthSystem.UpdateHealthBar(newHealth);
+
+                    await Task.Yield();
+                }
+            }
+            catch (TaskCanceledException)
+            {
+               
             }
 
             StopActiveHealing();
         }
 
-        private IEnumerator ShootingCooldownCoroutine()
+        private async Task ShootingCooldownAsync()
         {
             inputActions.Player.Shoot.Disable();
-            yield return new WaitForSeconds(shootCooldownAfterHeal);
+            await Task.Delay((int)(shootCooldownAfterHeal * 1000));
             inputActions.Player.Shoot.Enable();
         }
 
@@ -109,7 +128,8 @@ namespace HealthSystem
                 return;
 
             isPassiveHealing = true;
-            passiveHealingCoroutine = StartCoroutine(PassiveHealingCoroutine());
+            passiveHealingCts = new CancellationTokenSource();
+            _ = PassiveHealingAsync(passiveHealingCts.Token);
         }
 
         private void StopPassiveHealing()
@@ -117,18 +137,24 @@ namespace HealthSystem
             if (!isPassiveHealing) return;
 
             isPassiveHealing = false;
-            if (passiveHealingCoroutine != null)
-                StopCoroutine(passiveHealingCoroutine);
+            passiveHealingCts?.Cancel();
         }
 
-        private IEnumerator PassiveHealingCoroutine()
+        private async Task PassiveHealingAsync(CancellationToken token)
         {
-            while (isPassiveHealing && healthSystem.GetCurrentHealth() < healthSystem.GetMaxHealth())
+            try
             {
-                float newHealth = Mathf.Min(healthSystem.GetCurrentHealth() + passiveHealSpeed * Time.deltaTime, healthSystem.GetMaxHealth());
-                healthSystem.UpdateHealthBar(newHealth);
+                while (!token.IsCancellationRequested && isPassiveHealing && healthSystem.GetCurrentHealth() < healthSystem.GetMaxHealth())
+                {
+                    float newHealth = Mathf.Min(healthSystem.GetCurrentHealth() + passiveHealSpeed * Time.deltaTime, healthSystem.GetMaxHealth());
+                    healthSystem.UpdateHealthBar(newHealth);
 
-                yield return null;
+                    await Task.Yield();
+                }
+            }
+            catch (TaskCanceledException)
+            {
+
             }
 
             isPassiveHealing = false;
