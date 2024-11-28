@@ -90,6 +90,7 @@ namespace ShootingSystem
             RpcSpawnProjectile(from, to);
         }
 
+        [Command]
         private void CmdSpawnShootingVFX()
         {
             RpcSpawnShootingVFX();

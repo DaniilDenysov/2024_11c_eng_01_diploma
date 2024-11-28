@@ -66,13 +66,13 @@ namespace HealthSystem
             if (_healthSlider.GetCurrentValue() - damage <= 0)
             {
                 newHealth = 0;
+
                 var killer = conn.identity.GetComponent<NetworkPlayer>();
-                killer.AddKill();
                 var victim = netIdentity.GetComponent<NetworkPlayer>();
-                victim.AddDeath();
-                
+                killer.SetKills(killer.GetKills()+1);
+                victim.SetDeaths(victim.GetDeaths()+1);       
                 InitiateRespawn(netIdentity.connectionToClient);
-                OnPlayerDied(killer.GetName(), KillfeedManager.Instance.GetPhrase(),victim.GetName());
+                OnPlayerDied(killer.GetName(), KillfeedManager.Instance.GetPhrase(), victim.GetName());
             }
             else
             {

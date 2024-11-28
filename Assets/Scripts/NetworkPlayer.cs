@@ -16,34 +16,52 @@ public class NetworkPlayer : NetworkBehaviour
     public static NetworkPlayer LocalPlayerInstance;
 
     [SerializeField, SyncVar(hook = nameof(OnNicknameChanged))] private string nickname; 
-    [SerializeField, SyncVar(hook = nameof(OnKillCountChanged))] private int kills; 
-    [SerializeField, SyncVar(hook = nameof(OnAssistCountChanged))] private int assists; 
-    [SerializeField, SyncVar(hook = nameof(OnDeathCountChanged))] private int deaths;
+    [SerializeField, SyncVar(hook = nameof(OnKillsUpdated))] private int kills; 
+    [SerializeField, SyncVar(hook = nameof(OnAssistsUpdated))] private int assists; 
+    [SerializeField, SyncVar(hook = nameof(OnDeathsUpdated))] private int deaths; 
     
 
     [SerializeField] private TMP_Text displayName;
 
 
-    private void OnKillCountChanged(int oldCount, int newCount)
+    private void OnDeathsUpdated(int oldValue, int newValue)
     {
-        Scoreboard.Instance.Refresh();
+        Scoreboard.Instance.SetIsDirty();
     }
 
-    private void OnAssistCountChanged(int oldCount, int newCount)
+    private void OnKillsUpdated (int oldValue, int newValue)
     {
-        Scoreboard.Instance.Refresh();
+        Scoreboard.Instance.SetIsDirty();
     }
 
-    private void OnDeathCountChanged(int oldCount, int newCount)
+    private void OnAssistsUpdated(int oldValue, int newValue)
     {
-        Scoreboard.Instance.Refresh();
+        Scoreboard.Instance.SetIsDirty();
+    }
+
+    [Server]
+    public void SetKills(int kills)
+    {
+        this.kills = kills;
+    }
+
+    [Server]
+    public void SetAssists(int assists)
+    {
+        this.assists = assists;
+    }
+
+    [Server]
+    public void SetDeaths(int deaths)
+    {
+        this.deaths = deaths;
     }
 
     private void OnNicknameChanged(string oldName, string newName)
     {
         Debug.Log($"Nickname changed from {oldName} to {newName}");
+        Scoreboard.Instance.SetIsDirty();
         displayName.text = newName;
-        Scoreboard.Instance.Refresh();
         if (isOwned)
         {
             displayName.gameObject.SetActive(false);
@@ -51,19 +69,39 @@ public class NetworkPlayer : NetworkBehaviour
     }
 
     [Server]
-    public void AddKill()
+    public void SetNickname(string v)
     {
-        kills++;
+        nickname = v;
     }
 
-    [Server]
-    public void AddDeath()
+    public int GetAssists()
     {
-        deaths++;
+        return assists;
     }
+
+    public int GetDeaths()
+    {
+        return deaths;
+    }
+
+    public int GetKills()
+    {
+        return kills;
+    }
+
+    public override void OnStopClient()
+    {
+        base.OnStopClient();
+       // Scoreboard.Instance.RemovePlayerCmd(nickname);
+    }
+
 
     [Command]
-    public void CmdSetNickname(string nickname) => this.nickname = nickname;
+    public void CmdSetNickname(string nickname)
+    {
+        if (nickname.Equals(this.nickname)) return;
+        this.nickname = nickname;
+    }
 
     public string GetName() => nickname;
 
@@ -74,7 +112,8 @@ public class NetworkPlayer : NetworkBehaviour
         localPlayerInterfaces.SetActive(true);
         if (SteamManager.Initialized)
         {
-            CmdSetNickname(SteamFriends.GetPersonaName());
+            var nickname = SteamFriends.GetPersonaName();
+           if (!this.nickname.Equals(nickname)) CmdSetNickname(nickname);
         }
         else
         {
@@ -82,21 +121,6 @@ public class NetworkPlayer : NetworkBehaviour
         }
 
         LocalPlayerInstance = this;
-    }
-
-    public int GetAssistCount()
-    {
-        return assists;
-    }
-
-    public int GetDeathCount()
-    {
-        return deaths;
-    }
-
-    internal int GetKillCount()
-    {
-        return kills;
     }
 
     public override void OnStopAuthority()

@@ -9,6 +9,7 @@ using General;
 using Steamworks;
 using UnityEngine.Events;
 using System.Threading.Tasks;
+using Score;
 
 namespace Managers  
 {
@@ -30,6 +31,12 @@ namespace Managers
             
         }
 
+        public override void OnServerDisconnect(NetworkConnectionToClient conn)
+        {
+            base.OnServerDisconnect(conn);
+
+        }
+
         public override void OnServerReady(NetworkConnectionToClient conn)
         {
             base.OnServerReady(conn);
@@ -46,7 +53,16 @@ namespace Managers
         public void SpawnPlayerAt (Vector3 postition,NetworkConnectionToClient connectionToClient)
         {
            GameObject newPlayer = Instantiate(playerPrefab, postition, Quaternion.identity);
-            if (connectionToClient.identity != null) NetworkServer.ReplacePlayerForConnection(connectionToClient, newPlayer, ReplacePlayerOptions.Destroy);
+            if (connectionToClient.identity != null)
+            {
+                var newPlayerInfo = newPlayer.GetComponent<NetworkPlayer>();
+                var oldPlayerInfo = connectionToClient.identity.GetComponent<NetworkPlayer>();
+                newPlayerInfo.SetNickname(oldPlayerInfo.GetName());
+                newPlayerInfo.SetKills(oldPlayerInfo.GetKills());
+                newPlayerInfo.SetAssists(oldPlayerInfo.GetAssists());
+                newPlayerInfo.SetDeaths(oldPlayerInfo.GetDeaths());
+                NetworkServer.ReplacePlayerForConnection(connectionToClient, newPlayer, ReplacePlayerOptions.Destroy);
+            }
             else NetworkServer.AddPlayerForConnection(connectionToClient, newPlayer);
         }
 
@@ -57,7 +73,7 @@ namespace Managers
 public class PlayerStats
 {
     public string Nickname;
-    public int KillCount;
-    public int AssistCount;
-    public int DeathCount;
+    [SyncVar] public int KillCount;
+    [SyncVar] public int AssistCount;
+    [SyncVar] public int DeathCount;
 }
