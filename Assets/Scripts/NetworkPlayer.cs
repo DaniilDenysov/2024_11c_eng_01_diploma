@@ -13,7 +13,7 @@ public class NetworkPlayer : NetworkBehaviour
 {
     [SerializeField] private GameObject localPlayerInterfaces;
     [SerializeField] private Camera playerCamera;
-    public static NetworkPlayer LocalPlayerInstance;
+    public static NetworkPlayer LocalPlayerInstance { get => NetworkClient.localPlayer.GetComponent<NetworkPlayer>(); private set { } }
 
     [SerializeField, SyncVar(hook = nameof(OnNicknameChanged))] private string nickname; 
     [SerializeField, SyncVar(hook = nameof(OnTeamGuidChaged))] private string teamGuid; 
@@ -23,6 +23,14 @@ public class NetworkPlayer : NetworkBehaviour
     
 
     [SerializeField] private TMP_Text displayName;
+
+    private void Start()
+    {
+        if (NetworkServer.active)
+        {
+            SetTextColor();
+        }
+    }
 
     private void OnDeathsUpdated(int oldValue, int newValue)
     {
@@ -38,6 +46,15 @@ public class NetworkPlayer : NetworkBehaviour
     {
         Scoreboard.Instance.SetIsDirty();
     }
+
+
+    //update on demand
+    private void LateUpdate()
+    {
+        if (!displayName.gameObject.activeInHierarchy) return;
+        SetTextColor();
+    }
+
 
     [Server]
     public void SetKills(int kills)
@@ -56,18 +73,12 @@ public class NetworkPlayer : NetworkBehaviour
     {
         this.deaths = deaths;
     }
-
-
-    [ClientRpc]
-    public void SetTextColor(Color clr)
+     
+    public void SetTextColor()
     {
-        displayName.color = clr;
-    }
-
-    [Command(requiresAuthority = false)]
-    public void CmdSetColor ()
-    {
-        SetTextColor(((CustomNetworkManager)NetworkManager.singleton).GetTeamColor(teamGuid));
+       if (LocalPlayerInstance == null) return; 
+       if (!LocalPlayerInstance.teamGuid.Equals(teamGuid)) displayName.color = Color.red;
+       else displayName.color = Color.green;
     }
 
     private void OnTeamGuidChaged(string oldTeamGuid, string newTeamGuid)

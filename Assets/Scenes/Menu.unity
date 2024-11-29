@@ -1085,7 +1085,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &246736728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1147,8 +1147,7 @@ MonoBehaviour:
     type: 3}
   autoCreatePlayer: 0
   playerSpawnMethod: 0
-  spawnPrefabs:
-  - {fileID: 5840194963678970969, guid: 88f0d78678d933a4db986125c98310ef, type: 3}
+  spawnPrefabs: []
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -2471,7 +2470,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &959473503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2531,8 +2530,7 @@ MonoBehaviour:
     type: 3}
   autoCreatePlayer: 0
   playerSpawnMethod: 0
-  spawnPrefabs:
-  - {fileID: 5840194963678970969, guid: 88f0d78678d933a4db986125c98310ef, type: 3}
+  spawnPrefabs: []
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -2548,7 +2546,7 @@ MonoBehaviour:
   evaluationMethod: 0
   evaluationInterval: 3
   timeInterpolationGui: 0
-  gameModeSO: {fileID: 11400000, guid: c74f1de5891f87744890c8ee0a26aa3b, type: 2}
+  gameModeSO: {fileID: 11400000, guid: c0eeb68b6ea7942459775325650d6daf, type: 2}
   distributionMode: 0
 --- !u!4 &959473506
 Transform:
@@ -3444,7 +3442,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2020518870
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -152,6 +152,11 @@ namespace Managers
 
         #endregion
 
+        public override void OnStopServer()
+        {
+            base.OnStopServer();
+        }
+
         public override void OnServerConnect(NetworkConnectionToClient conn)
         {
             base.OnServerConnect(conn);

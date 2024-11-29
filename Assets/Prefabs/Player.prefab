@@ -5308,7 +5308,7 @@ GameObject:
   - component: {fileID: 1385690740063077793}
   - component: {fileID: 2006791088899441681}
   - component: {fileID: 3172845989025092016}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Nickname
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5782,7 +5782,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4768168765381117761}
   - component: {fileID: 1271712466031110168}
-  - component: {fileID: 2238256326111126378}
   - component: {fileID: 3685772907639715898}
   - component: {fileID: 1958971098651905617}
   - component: {fileID: 784993188211019852}
@@ -5860,14 +5859,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &2238256326111126378
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7861498255334019228}
-  m_Enabled: 1
 --- !u!114 &3685772907639715898
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10928,6 +10919,7 @@ MonoBehaviour:
   localPlayerInterfaces: {fileID: 1960636912078822929}
   playerCamera: {fileID: 1271712466031110168}
   nickname: 
+  teamGuid: 
   kills: 0
   assists: 0
   deaths: 0
@@ -11198,8 +11190,10 @@ MonoBehaviour:
   syncInterval: 0
   serverDisplay: {fileID: 5795438368711374579}
   clientDisplay: {fileID: 7428741211889928338}
+  assistsStackSize: 2
   _armorSystem: {fileID: 0}
   _canTakeDamage: 1
+  _enableTeamKill: 0
 --- !u!114 &5404274567786859334
 MonoBehaviour:
   m_ObjectHideFlags: 0
