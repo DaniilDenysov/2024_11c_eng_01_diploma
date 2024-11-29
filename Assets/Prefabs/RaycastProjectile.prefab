@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1228503894608665329}
   - component: {fileID: 1132107853012816228}
   - component: {fileID: 2902638209561542010}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: RaycastProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
