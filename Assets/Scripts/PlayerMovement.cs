@@ -121,8 +121,7 @@ public class PlayerMovement : NetworkBehaviour
             state = MovementState.crouching;
             movementSpeed = crouchSpeed;
         }
-
-        if(isGrounded && isSprinting && !isCrouching)
+        else if(isGrounded && isSprinting && !isCrouching)
         {
             state = MovementState.sprinting;
             movementSpeed = sprintSpeed;;
@@ -135,6 +134,19 @@ public class PlayerMovement : NetworkBehaviour
         else
         {
             state = MovementState.air;
+        }
+
+        if (horizontalInput != 0 && verticalInput != 0 && state != MovementState.air)
+        {
+            movementSpeed *= 0.9f;
+        }
+        else if (horizontalInput != 0 && verticalInput == 0 && state != MovementState.air)
+        {
+            movementSpeed *= 0.8f;
+        }
+        else if (verticalInput < 0 && state != MovementState.air)
+        {
+            movementSpeed *= 0.7f;
         }
     }
 
