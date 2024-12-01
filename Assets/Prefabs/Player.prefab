@@ -11045,12 +11045,12 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   movementSpeed: 7
-  walkSpeed: 7
+  walkSpeed: 8
   sprintSpeed: 11
   groundDrag: 1
   jumpForce: 3
   jumpCooldown: 0.5
-  airMultiplier: 0.3
+  airMultiplier: 0.8
   crouchSpeed: 4
   crouchYScale: 0.5
   startYScale: 0
