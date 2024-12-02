@@ -28,7 +28,7 @@ MonoBehaviour:
   recoilRecoverySpeed: 1
   maxSpreadTime: 4
   accuracy: 10
-  verticalRecoil: 5
+  verticalRecoil: 2.5
   horizontalRecoil: 1
   spreadPattern: {fileID: 21300000, guid: 109ad81025637b148819dcf3d1a3f8a6, type: 3}
   SpreadPoints:
