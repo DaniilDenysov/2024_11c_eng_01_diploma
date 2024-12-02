@@ -15,6 +15,8 @@ namespace ShootingSystem
         [SerializeField] private WeaponView view;
         [SerializeField] private WeaponModel model;
 
+        [SerializeField] private WeaponModel [] lodout;
+
         private DefaultInput inputActions;
         private bool isFiring;
         private float lastTimeFired;
@@ -73,12 +75,11 @@ namespace ShootingSystem
             inputActions = new DefaultInput();
             inputActions.Enable();
             inputActions.Player.Reload.performed += OnReloaded;
-           // inputActions.Player.MainWeapon.performed += OnMainWeaponSelected;
-          //  inputActions.Player.SecondaryWeapon.performed += OnSecondaryWeaponSelected;
+            inputActions.Player.MainWeapon.performed += OnMainWeaponSelected;
+            inputActions.Player.SecondaryWeapon.performed += OnSecondaryWeaponSelected;
             lastTimeFired = -model.GetWeaponSO().FireRate;
             Debug.Log(model.GetWeaponSO());
             Debug.Log(model.GetWeaponSO().Mag);
-            model.CurrentBullets = model.GetWeaponSO().Mag.GetMaxBullets();
             view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
         }
 
@@ -107,6 +108,12 @@ namespace ShootingSystem
         private void CmdSpawnVFX(Vector3 shootingPoint, Vector3 hitPosition)
         {
             SpawnVFX(shootingPoint, hitPosition);
+        }
+
+        [Command]
+        public void CmdChangeWeapon(int i)
+        {
+            RpcChangeWeapon(i);
         }
         #endregion
 
@@ -155,6 +162,7 @@ namespace ShootingSystem
             PlayShootingVFX();
         }
 
+
         #endregion
 
         #region RPCs
@@ -173,6 +181,12 @@ namespace ShootingSystem
             PlayShootingVFX();
         }
 
+        [ClientRpc(includeOwner = false)]
+        private void RpcChangeWeapon (int i)
+        {
+            ChangeWeapon(i);
+        }
+
         #endregion
 
         #region InputHandling
@@ -186,22 +200,18 @@ namespace ShootingSystem
         private void OnMainWeaponSelected(InputAction.CallbackContext context)
         {
             if (!isLocalPlayer) return;
-            if (!model.IsEquiped(0))
-            {
-                model.SetWeaponSO(0);
-                WeaponSO weaponSO = model.GetWeaponSO();
-                view.CmdChangeWeapon(weaponSO);
-            }
+            if (!CanChangeWeapon(0)) return;
+            ChangeWeapon(0);
+            view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
+            CmdChangeWeapon(0);
         }
         private void OnSecondaryWeaponSelected(InputAction.CallbackContext context)
         {
             if (!isLocalPlayer) return;
-            if (!model.IsEquiped(1))
-            {
-                model.SetWeaponSO(1);
-                WeaponSO weaponSO = model.GetWeaponSO();
-                view.CmdChangeWeapon(weaponSO);
-            }
+            if (!CanChangeWeapon(1)) return;
+            ChangeWeapon(1);
+            view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
+            CmdChangeWeapon(1);
         }
         #endregion
 
@@ -211,6 +221,21 @@ namespace ShootingSystem
 
 
         #region Local
+
+        private void ChangeWeapon(int i)
+        {
+            model.gameObject.SetActive(false);
+            model = lodout[i];
+            model.gameObject.SetActive(true);
+        }
+
+        private bool CanChangeWeapon (int i)
+        {
+            if (!(i >= 0 && i < lodout.Length)) return false;
+            if (lodout[i] == model) return false;
+            return true;
+        }
+
         private bool CanShoot()
         {
             return (lastTimeFired + model.GetWeaponSO().FireRate <= Time.time) && (model.CurrentBullets > 0);
@@ -280,7 +305,7 @@ namespace ShootingSystem
                 Vector3 additionalSpread = weapon.GetTextureDirection(Time.time - initialClickTime);
                 Vector3 spreadDirection = mainCamera.transform.forward + additionalSpread;
                 Vector3 spreadDirectionUnit = additionalSpread.normalized;
-                float horizontalRecoilApplied = (spreadDirectionUnit.x >= 0 ? 1 : 0) * weapon.HorizontalRecoil;
+                float horizontalRecoilApplied = (spreadDirectionUnit.x >= 0 ? 1 : -1) * weapon.HorizontalRecoil;
                 float verticalRecoilApplied = (spreadDirectionUnit.y >= 0 ? 1 : 0) * weapon.VerticalRecoil;
                 Vector2 appliedRecoil = new Vector2(horizontalRecoilApplied, verticalRecoilApplied);
 

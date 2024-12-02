@@ -9,7 +9,6 @@ namespace ShootingSystem
     {
         [SerializeField] private Transform shootingPoint;
         [SerializeField] private LayerMask hitLayers;
-        [SerializeField] private List<WeaponSO> lodout = new List<WeaponSO>();
         [SerializeField] private WeaponSO currentWeaponSO;
         [SerializeField] private ParticleSystem bulletCase;
         [SerializeField] private ParticleSystem muzzleLight;
@@ -17,6 +16,11 @@ namespace ShootingSystem
         public int CurrentBullets;
 
         private int currentSpreadIndex = 0;
+
+        private void Start()
+        {
+            CurrentBullets = currentWeaponSO.Mag.GetMaxBullets();
+        }
 
         public void AdvanceSpreadPoint()
         {
@@ -37,17 +41,6 @@ namespace ShootingSystem
         public void ResetSpreadIndex()
         {
             currentSpreadIndex = 0;
-        }
-
-        public void SetWeaponSO (int i)
-        {
-            if (i < 0 || i >= lodout.Count) return;
-            currentWeaponSO = lodout[i];
-        }
-
-        public bool IsEquiped(int i)
-        {
-            return lodout.IndexOf(currentWeaponSO) == i;
         }
 
         public ParticleSystem GetMuzzleLight() => muzzleLight;

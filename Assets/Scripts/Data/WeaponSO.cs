@@ -16,13 +16,6 @@ public class WeaponSO : ScriptableObject
     [SerializeField] private RaycastProjectile projectile;
     public RaycastProjectile Projectile { get => projectile; private set { } }
 
-    [SerializeField] private Vector3 leftGrip;
-    public Vector3 GetLeftGrip() => leftGrip;
-    [SerializeField] private Vector3 rightGrip;
-    public Vector3 GetRightGrip() => rightGrip;
-    [SerializeField] private Mesh mesh;
-    public Mesh GetMesh() => mesh;
-
     [Header("Stats")]
     [SerializeField, Range(0, 1000)] private float fireRate;
     public float FireRate { get => fireRate; private set { } }
@@ -48,6 +41,12 @@ public class WeaponSO : ScriptableObject
         Hold
     }
 
+
+    [SerializeField, Range(0, 1000)] private float scopeTime;
+    public float ScopeTime { get => scopeTime; private set { } }
+    [SerializeField] private WeaponMagSO mag;
+    public WeaponMagSO Mag { get => mag; set { } }
+
     [Header("Recoil")]
 
     [SerializeField] private float recoilRecoverySpeed = 1f;
@@ -55,54 +54,14 @@ public class WeaponSO : ScriptableObject
 
     [SerializeField] private float maxSpreadTime = 4f;
     public float MaxSpreadTime { get => maxSpreadTime; private set { } }
-    [SerializeField, Range(0,100)] private float accuracy;
-    public float Accuracy { get => accuracy; private set { } }
-    [SerializeField, Range(0, 100)] private float verticalRecoil;
+
+    [SerializeField, Range(0, 100), Tooltip("Strength of vertical recoil")] private float verticalRecoil;
     public float VerticalRecoil { get => verticalRecoil; private set { } }
-    [SerializeField, Range(0, 100)] private float horizontalRecoil;
+    [SerializeField, Range(0, 100), Tooltip("Strength of horizontal recoil")] private float horizontalRecoil;
     public float HorizontalRecoil { get => horizontalRecoil; private set { } }
 
-      [SerializeField] private Sprite spreadPattern;
-       public List<Vector3> SpreadPoints = new List<Vector3>();
 
-       [Range(0, 2f)] public float spreadMultiplier = 1f;
-
-       [Button]
-       public void ScanAndCreatePattern()
-       {
-           if (spreadPattern == null)
-           {
-               Debug.LogError("Spread pattern is null!");
-               return;
-           }
-
-           Texture2D texture = spreadPattern.texture;
-           SpreadPoints.Clear();
-
-           if (texture == null)
-           {
-               Debug.LogError("Spread pattern texture is null!");
-               return;
-           }
- 
-         Vector3 prevPoint = new Vector3(32,32);
-           for (int y = 31; y > 0; y--)
-           {
-               for (int x = 31; x > 0; x--)
-               {
-                   Color pixel = texture.GetPixel(x, y);
-                   if (pixel.a > 0f)
-                   {
-                     var nextPoint = new Vector3(x, y, 0);
-                     SpreadPoints.Add(nextPoint-prevPoint);
-                     prevPoint = nextPoint;
-                   }
-               }
-           }
-
-           Debug.Log($"Spread pattern scanned! Found {SpreadPoints.Count} spread points.");
-       }
-
+    [SerializeField] private Sprite spreadPattern;
 
     public Vector3 GetTextureDirection(float shootTime)
     {
@@ -156,29 +115,4 @@ public class WeaponSO : ScriptableObject
 
         return direction;
     }
-
-    public static Texture2D FlipTexture(Texture2D texture)
-    {
-        Texture2D readableTexture = new Texture2D(texture.width, texture.height, texture.format, texture.mipmapCount > 1);
-        Graphics.CopyTexture(texture, readableTexture);
-
-        Color[] pixels = readableTexture.GetPixels();
-        Array.Reverse(pixels);
-
-        readableTexture.SetPixels(pixels);
-        readableTexture.Apply();
-
-        return readableTexture;
-    }
-
-
-    [SerializeField, Range(0,1000f)] private float rangeX;
-    [SerializeField, Range(0,1000f)] private float rangeY;
-    public float RangeX { get => rangeX; private set { } }
-    public float RangeY { get => rangeY; private set { } }
-
-    [SerializeField, Range(0,1000)] private float scopeTime;
-    public float ScopeTime { get => scopeTime; private set { } }
-    [SerializeField] private WeaponMagSO mag;
-    public WeaponMagSO Mag { get => mag; set { } }
 }

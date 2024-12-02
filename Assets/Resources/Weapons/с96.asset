@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f32c9afc7595e5943a95f24dcaf8bccf, type: 3}
+  m_Name: "\u044196"
+  m_EditorClassIdentifier: 
+  bulletHole: {fileID: 4177217897757443056, guid: 30d235f6e4c324d4db5ebcc2a4d3e289,
+    type: 3}
+  projectile: {fileID: 2902638209561542010, guid: 88f0d78678d933a4db986125c98310ef,
+    type: 3}
+  fireRate: 0.5
+  damage: 25
+  distance: 1000
+  burst: 1
+  bulletsPerShot: 1
+  mode: 0
+  scopeTime: 0
+  mag: {fileID: 11400000, guid: e417c2f1e03428444b92770bb1db5454, type: 2}
+  recoilRecoverySpeed: 1
+  maxSpreadTime: 4
+  verticalRecoil: 5
+  horizontalRecoil: 0
+  spreadPattern: {fileID: 21300000, guid: 109ad81025637b148819dcf3d1a3f8a6, type: 3}

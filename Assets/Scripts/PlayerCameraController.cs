@@ -41,6 +41,8 @@ public class PlayerCameraController : NetworkBehaviour
 
     private Vector3 rotationVelocity;     // Used for smooth damping
 
+   
+
     void Start()
     {
         _camera = GetComponent<Camera>();
@@ -59,10 +61,14 @@ public class PlayerCameraController : NetworkBehaviour
             return;
         }
 
-        RecoverRecoil();
         HandleMouseLook();
         HandleFieldOfView();
        // HandleHeadBobbing();
+    }
+
+    private void LateUpdate()
+    {
+        RecoverRecoil();
     }
 
     void HandleMouseLook()
