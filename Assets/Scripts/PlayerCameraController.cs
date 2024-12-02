@@ -59,10 +59,10 @@ public class PlayerCameraController : NetworkBehaviour
             return;
         }
 
+        RecoverRecoil();
         HandleMouseLook();
         HandleFieldOfView();
        // HandleHeadBobbing();
-        RecoverRecoil();
     }
 
     void HandleMouseLook()
