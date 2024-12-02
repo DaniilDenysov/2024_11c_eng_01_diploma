@@ -61,7 +61,7 @@ public class PlayerCameraController : NetworkBehaviour
 
         HandleMouseLook();
         HandleFieldOfView();
-        HandleHeadBobbing();
+       // HandleHeadBobbing();
         RecoverRecoil();
     }
 

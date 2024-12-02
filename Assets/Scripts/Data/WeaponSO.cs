@@ -1,7 +1,9 @@
 using CustomTools;
 using Shooting;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Weapon", menuName = "create new weapon")]
@@ -47,6 +49,12 @@ public class WeaponSO : ScriptableObject
     }
 
     [Header("Recoil")]
+
+    [SerializeField] private float recoilRecoverySpeed = 1f;
+    public float RecoilRecoverySpeed { get => recoilRecoverySpeed; private set { } }
+
+    [SerializeField] private float maxSpreadTime = 4f;
+    public float MaxSpreadTime { get => maxSpreadTime; private set { } }
     [SerializeField, Range(0,100)] private float accuracy;
     public float Accuracy { get => accuracy; private set { } }
     [SerializeField, Range(0, 100)] private float verticalRecoil;
@@ -54,12 +62,12 @@ public class WeaponSO : ScriptableObject
     [SerializeField, Range(0, 100)] private float horizontalRecoil;
     public float HorizontalRecoil { get => horizontalRecoil; private set { } }
 
-    /*   [SerializeField] private Sprite spreadPattern;
+      [SerializeField] private Sprite spreadPattern;
        public List<Vector3> SpreadPoints = new List<Vector3>();
 
        [Range(0, 2f)] public float spreadMultiplier = 1f;
 
-       [ContextMenu("Create pattern")]
+       [Button]
        public void ScanAndCreatePattern()
        {
            if (spreadPattern == null)
@@ -76,17 +84,18 @@ public class WeaponSO : ScriptableObject
                Debug.LogError("Spread pattern texture is null!");
                return;
            }
-
-           for (int x = 0; x < texture.width; x++)
+ 
+         Vector3 prevPoint = new Vector3(32,32);
+           for (int y = 31; y > 0; y--)
            {
-               for (int y = 0; y < texture.height; y++)
+               for (int x = 31; x > 0; x--)
                {
                    Color pixel = texture.GetPixel(x, y);
-                   if (pixel.a > 0.5f)
+                   if (pixel.a > 0f)
                    {
-                       float normalizedX = (x / (float)texture.width) - 0.5f;
-                       float normalizedY = (y / (float)texture.height) - 0.5f;
-                       SpreadPoints.Add(new Vector3(normalizedX, normalizedY, 0));
+                     var nextPoint = new Vector3(x, y, 0);
+                     SpreadPoints.Add(nextPoint-prevPoint);
+                     prevPoint = nextPoint;
                    }
                }
            }
@@ -94,18 +103,74 @@ public class WeaponSO : ScriptableObject
            Debug.Log($"Spread pattern scanned! Found {SpreadPoints.Count} spread points.");
        }
 
-       public Vector3 GetRandomSpreadPoint(Transform weaponTransform)
-       {
-           if (SpreadPoints.Count == 0)
-           {
-               Debug.LogWarning("No spread points available!");
-               return weaponTransform.forward;
-           }
-           Vector3 randomPoint = SpreadPoints[Random.Range(0, SpreadPoints.Count)];
-           Vector3 spreadPoint = weaponTransform.TransformDirection(randomPoint * spreadMultiplier);
 
-           return spreadPoint;
-       }*/
+    public Vector3 GetTextureDirection(float shootTime)
+    {
+
+        if (spreadPattern == null)
+        {
+            Debug.LogError("Spread pattern is null!");
+            return Vector3.zero;
+        }
+
+        Texture2D spreadTexture = spreadPattern.texture; //FlipTexture(spreadPattern.texture);
+            
+
+
+        if (spreadTexture == null)
+        {
+            Debug.LogError("Spread pattern texture is null!");
+            return Vector3.zero;
+        }
+
+        Vector2 halfSize = new Vector2(spreadTexture.width / 2f, spreadTexture.height / 2f);
+        int halfSquareExtents = Mathf.CeilToInt(
+            Mathf.Lerp(0.01f, halfSize.x, Mathf.Clamp01(shootTime / maxSpreadTime))
+        );
+
+        int minX = Mathf.FloorToInt(halfSize.x) - halfSquareExtents;
+        int minY = Mathf.FloorToInt(halfSize.y) - halfSquareExtents;
+
+        Color[] sampleColors = spreadTexture.GetPixels(
+            minX, minY, halfSquareExtents * 2, halfSquareExtents * 2
+        );
+
+        float[] colorsAsGrey = System.Array.ConvertAll(sampleColors, c => c.grayscale);
+        float totalGreyValue = colorsAsGrey.Sum();
+
+        float randomGrey = UnityEngine.Random.Range(0, totalGreyValue);
+        int i = 0;
+
+        for (; i < colorsAsGrey.Length; i++)
+        {
+            randomGrey -= colorsAsGrey[i];
+            if (randomGrey <= 0) break;
+        }
+
+        int x = minX + i % (halfSquareExtents * 2);
+        int y = minY + i / (halfSquareExtents * 2);
+
+        Vector2 targetPosition = new Vector2(x,y);
+
+        Vector2 direction = (targetPosition - halfSize) / halfSize.x;
+
+        return direction;
+    }
+
+    public static Texture2D FlipTexture(Texture2D texture)
+    {
+        Texture2D readableTexture = new Texture2D(texture.width, texture.height, texture.format, texture.mipmapCount > 1);
+        Graphics.CopyTexture(texture, readableTexture);
+
+        Color[] pixels = readableTexture.GetPixels();
+        Array.Reverse(pixels);
+
+        readableTexture.SetPixels(pixels);
+        readableTexture.Apply();
+
+        return readableTexture;
+    }
+
 
     [SerializeField, Range(0,1000f)] private float rangeX;
     [SerializeField, Range(0,1000f)] private float rangeY;
