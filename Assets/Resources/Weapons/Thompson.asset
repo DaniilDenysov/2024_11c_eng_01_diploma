@@ -29,7 +29,7 @@ MonoBehaviour:
   maxSpreadTime: 4
   accuracy: 10
   verticalRecoil: 5
-  horizontalRecoil: 5
+  horizontalRecoil: 1
   spreadPattern: {fileID: 21300000, guid: 109ad81025637b148819dcf3d1a3f8a6, type: 3}
   SpreadPoints:
   - {x: -0.46875, y: 0.34375, z: 0}

@@ -280,8 +280,8 @@ namespace ShootingSystem
                 Vector3 additionalSpread = weapon.GetTextureDirection(Time.time - initialClickTime);
                 Vector3 spreadDirection = mainCamera.transform.forward + additionalSpread;
                 Vector3 spreadDirectionUnit = additionalSpread.normalized;
-                float horizontalRecoilApplied = (spreadDirectionUnit.x >= 0 ? 1 : -1) * weapon.HorizontalRecoil;
-                float verticalRecoilApplied = (spreadDirectionUnit.y >= 0 ? 1 : -1) * weapon.VerticalRecoil;
+                float horizontalRecoilApplied = (spreadDirectionUnit.x >= 0 ? 1 : 0) * weapon.HorizontalRecoil;
+                float verticalRecoilApplied = (spreadDirectionUnit.y >= 0 ? 1 : 0) * weapon.VerticalRecoil;
                 Vector2 appliedRecoil = new Vector2(horizontalRecoilApplied, verticalRecoilApplied);
 
                 mainCamera.ApplyRecoil(appliedRecoil);
