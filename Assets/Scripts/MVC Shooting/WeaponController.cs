@@ -76,6 +76,7 @@ namespace ShootingSystem
             inputActions.Enable();
             inputActions.Player.Reload.performed += OnReloaded;
             inputActions.Player.MainWeapon.performed += OnMainWeaponSelected;
+            inputActions.Player.WeaponCycle.performed += OnWeaponCycle;
             inputActions.Player.SecondaryWeapon.performed += OnSecondaryWeaponSelected;
             lastTimeFired = -model.GetWeaponSO().FireRate;
             Debug.Log(model.GetWeaponSO());
@@ -213,6 +214,20 @@ namespace ShootingSystem
             view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
             CmdChangeWeapon(1);
         }
+
+        private void OnWeaponCycle(InputAction.CallbackContext obj)
+        {
+            if (!isLocalPlayer) return;
+            float scrollInput = inputActions.Player.WeaponCycle.ReadValue<float>();
+            int direction = scrollInput > 0 ? 1 : (scrollInput < 0 ? -1 : 0);
+            if (direction == 0) return;
+            int nextWeaponIndex = GetCurrentWeaponIndex() == 0 ? 1 : 0;
+            if (!CanChangeWeapon(nextWeaponIndex)) return;
+            ChangeWeapon(nextWeaponIndex);
+            view.SetCurrentBullets(model.CurrentBullets, model.GetWeaponSO().Mag.GetMaxBullets());
+            CmdChangeWeapon(nextWeaponIndex);
+        }
+
         #endregion
 
         #region Server
@@ -221,6 +236,11 @@ namespace ShootingSystem
 
 
         #region Local
+
+        private int GetCurrentWeaponIndex()
+        {
+            return System.Array.IndexOf(lodout,model);
+        }
 
         private void ChangeWeapon(int i)
         {

@@ -11161,7 +11161,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   mouseSensitivity: 100
-  invertY: 0
   rotationSmoothTime: 0.1
   defaultFOV: 60
   zoomFOV: 30
@@ -11175,6 +11174,7 @@ MonoBehaviour:
   playerBody: {fileID: 7771927710743836739}
   _rigidbody: {fileID: 6053382522458843117}
   _camera: {fileID: 1271712466031110168}
+  weaponSO: {fileID: 11400000, guid: dd14b54d26d1d0343af8915c458f6541, type: 2}
 --- !u!114 &784993188211019852
 MonoBehaviour:
   m_ObjectHideFlags: 0

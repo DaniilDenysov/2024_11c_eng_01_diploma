@@ -6,7 +6,6 @@ public class PlayerCameraController : NetworkBehaviour
 {
     [Header("Mouse Settings")]
     public float mouseSensitivity = 100f;  // Mouse sensitivity
-    public bool invertY = false;           // Option to invert Y-axis
     public float rotationSmoothTime = 0.1f; // Smoothing for rotation
 
     [Header("Field of View")]
@@ -41,7 +40,11 @@ public class PlayerCameraController : NetworkBehaviour
 
     private Vector3 rotationVelocity;     // Used for smooth damping
 
-   
+    private float recoilRecoveryDelay = 0.3f;
+    private float currentDelay = 0f;
+
+
+    [SerializeField] private WeaponSO weaponSO;
 
     void Start()
     {
@@ -60,29 +63,33 @@ public class PlayerCameraController : NetworkBehaviour
             Destroy(this);
             return;
         }
-
         HandleMouseLook();
         HandleFieldOfView();
-       // HandleHeadBobbing();
+        RecoverRecoil();
+        // HandleHeadBobbing();
     }
 
-    private void LateUpdate()
-    {
-        RecoverRecoil();
-    }
+
+
 
     void HandleMouseLook()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-        xRotation -= (invertY ? -mouseY : mouseY);
+
+      //  targetRecoilOffset.x -= Mathf.Sign(targetRecoilOffset.x) * mouseX;
+      //  targetRecoilOffset.y -= Mathf.Sign(targetRecoilOffset.y) * mouseY;
+        targetRecoilOffset.x = Mathf.Clamp(targetRecoilOffset.x, -5f, 5f);
+        targetRecoilOffset.y = Mathf.Clamp(targetRecoilOffset.y, -5f, 5f);
+        xRotation -=  mouseY;
         xRotation = Mathf.Clamp(xRotation, minVerticalAngle, maxVerticalAngle);
         yRotation += mouseX;
         Quaternion recoilRotation = Quaternion.Euler(-currentRecoilOffset.y, currentRecoilOffset.x, 0);
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f) * recoilRotation;
         playerBody.localEulerAngles = new Vector3(0f, yRotation, 0f);
     }
-                        
+
+
     void HandleFieldOfView()
     {
         float targetFOV = Input.GetMouseButton(1) ? zoomFOV : defaultFOV;
@@ -109,14 +116,25 @@ public class PlayerCameraController : NetworkBehaviour
 
     public void ApplyRecoil(Vector2 recoilOffset)
     {
+        currentDelay = recoilRecoveryDelay;
         targetRecoilOffset += recoilOffset;
     }
 
     private void RecoverRecoil()
     {
-        currentRecoilOffset = Vector2.Lerp(currentRecoilOffset, targetRecoilOffset, Time.deltaTime * recoilRecoverySpeed);
+        currentRecoilOffset = Vector2.Lerp(currentRecoilOffset, targetRecoilOffset, weaponSO.FireRate);
+        if (currentDelay >= 0)
+        {
+            currentDelay -= Time.deltaTime;
+            return;
+        }
+        // Smoothly reduce the current recoil offset towards the target recoil offset
+       
+
+        // Gradually reduce target recoil to zero for subtle recovery
         targetRecoilOffset = Vector2.Lerp(targetRecoilOffset, Vector2.zero, Time.deltaTime * recoilRecoverySpeed);
     }
+
 
     public void SetMouseSensitivity(float sensitivity)
     {
@@ -125,7 +143,7 @@ public class PlayerCameraController : NetworkBehaviour
 
     public void ToggleInvertY(bool isEnabled)
     {
-        invertY = isEnabled;
+       // invertY = isEnabled;
     }
 
     public void SetFOV(float fov)
