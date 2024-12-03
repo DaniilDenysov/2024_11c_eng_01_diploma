@@ -64,8 +64,8 @@ public class PlayerCameraController : NetworkBehaviour
             return;
         }
         HandleMouseLook();
-        HandleFieldOfView();
         RecoverRecoil();
+        HandleFieldOfView();
         // HandleHeadBobbing();
     }
 
@@ -80,6 +80,8 @@ public class PlayerCameraController : NetworkBehaviour
         xRotation = Mathf.Clamp(xRotation, minVerticalAngle, maxVerticalAngle);
         yRotation += mouseX;
 
+        targetRecoilOffset.x = Mathf.Clamp(targetRecoilOffset.x, -70f, 70f);
+        targetRecoilOffset.y = Mathf.Clamp(targetRecoilOffset.y, -70f, 70f);
         Quaternion recoilRotation = Quaternion.Euler(-currentRecoilOffset.y, currentRecoilOffset.x, 0);
 
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f) * recoilRotation;
@@ -117,6 +119,11 @@ public class PlayerCameraController : NetworkBehaviour
     {
         currentDelay = recoilRecoveryDelay;
         targetRecoilOffset += recoilOffset;
+
+        if (currentDelay <= 0)
+        {
+
+        }
     }
 
     private void RecoverRecoil()
@@ -127,10 +134,7 @@ public class PlayerCameraController : NetworkBehaviour
             currentDelay -= Time.deltaTime;
             return;
         }
-        // Smoothly reduce the current recoil offset towards the target recoil offset
 
-
-        // Gradually reduce target recoil to zero for subtle recovery
         targetRecoilOffset = Vector2.Lerp(targetRecoilOffset, Vector2.zero, Time.deltaTime * recoilRecoverySpeed);
     }
 
