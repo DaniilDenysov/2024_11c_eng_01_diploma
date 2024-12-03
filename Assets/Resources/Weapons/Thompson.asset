@@ -26,6 +26,6 @@ MonoBehaviour:
   mag: {fileID: 11400000, guid: 321a724362cdcc043831aad74f390f71, type: 2}
   recoilRecoverySpeed: 1
   maxSpreadTime: 4
-  verticalRecoil: 7
+  verticalRecoil: 4.5
   horizontalRecoil: 1.2
   spreadPattern: {fileID: 21300000, guid: 109ad81025637b148819dcf3d1a3f8a6, type: 3}

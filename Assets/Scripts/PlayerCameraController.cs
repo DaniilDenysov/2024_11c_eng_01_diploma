@@ -19,8 +19,8 @@ public class PlayerCameraController : NetworkBehaviour
     public float bobAmplitude = 0.05f;
 
     [Header("Clamp Settings")]
-    public float minVerticalAngle = -90f; // Minimum pitch angle
-    public float maxVerticalAngle = 90f;  // Maximum pitch angle
+    public float minVerticalAngle = -70f; // Minimum pitch angle
+    public float maxVerticalAngle = 70f;  // Maximum pitch angle
 
     [Header("Recoil Settings")]
     public float recoilRecoverySpeed = 5f; // Speed at which the recoil recovers
@@ -76,16 +76,15 @@ public class PlayerCameraController : NetworkBehaviour
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-      //  targetRecoilOffset.x -= Mathf.Sign(targetRecoilOffset.x) * mouseX;
-      //  targetRecoilOffset.y -= Mathf.Sign(targetRecoilOffset.y) * mouseY;
-        targetRecoilOffset.x = Mathf.Clamp(targetRecoilOffset.x, -5f, 5f);
-        targetRecoilOffset.y = Mathf.Clamp(targetRecoilOffset.y, -5f, 5f);
-        xRotation -=  mouseY;
+        xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, minVerticalAngle, maxVerticalAngle);
         yRotation += mouseX;
+
         Quaternion recoilRotation = Quaternion.Euler(-currentRecoilOffset.y, currentRecoilOffset.x, 0);
+
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f) * recoilRotation;
+        transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, 0f);
+
         playerBody.localEulerAngles = new Vector3(0f, yRotation, 0f);
     }
 
@@ -129,7 +128,7 @@ public class PlayerCameraController : NetworkBehaviour
             return;
         }
         // Smoothly reduce the current recoil offset towards the target recoil offset
-       
+
 
         // Gradually reduce target recoil to zero for subtle recovery
         targetRecoilOffset = Vector2.Lerp(targetRecoilOffset, Vector2.zero, Time.deltaTime * recoilRecoverySpeed);
@@ -143,7 +142,7 @@ public class PlayerCameraController : NetworkBehaviour
 
     public void ToggleInvertY(bool isEnabled)
     {
-       // invertY = isEnabled;
+        // invertY = isEnabled;
     }
 
     public void SetFOV(float fov)
