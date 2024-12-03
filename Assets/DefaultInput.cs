@@ -107,6 +107,15 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": ""Hold"",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""WeaponCycle"",
+                    ""type"": ""Button"",
+                    ""id"": ""8cab25f5-8bf8-410a-b7e6-f27ebf207e19"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -208,6 +217,39 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""action"": ""Heal"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""b3544b85-2ea2-4c5c-9777-e692709019b2"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""WeaponCycle"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""343a2a99-ff94-4734-b299-2568cd97937d"",
+                    ""path"": ""<Mouse>/scroll/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""WeaponCycle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""f7797af1-3686-4d2e-ba6d-f343e6e30555"",
+                    ""path"": ""<Mouse>/scroll/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""WeaponCycle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -225,6 +267,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         m_Player_Run = m_Player.FindAction("Run", throwIfNotFound: true);
         m_Player_Scoreboard = m_Player.FindAction("Scoreboard", throwIfNotFound: true);
         m_Player_Heal = m_Player.FindAction("Heal", throwIfNotFound: true);
+        m_Player_WeaponCycle = m_Player.FindAction("WeaponCycle", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -295,6 +338,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Run;
     private readonly InputAction m_Player_Scoreboard;
     private readonly InputAction m_Player_Heal;
+    private readonly InputAction m_Player_WeaponCycle;
     public struct PlayerActions
     {
         private @DefaultInput m_Wrapper;
@@ -308,6 +352,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         public InputAction @Run => m_Wrapper.m_Player_Run;
         public InputAction @Scoreboard => m_Wrapper.m_Player_Scoreboard;
         public InputAction @Heal => m_Wrapper.m_Player_Heal;
+        public InputAction @WeaponCycle => m_Wrapper.m_Player_WeaponCycle;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -344,6 +389,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Heal.started += instance.OnHeal;
             @Heal.performed += instance.OnHeal;
             @Heal.canceled += instance.OnHeal;
+            @WeaponCycle.started += instance.OnWeaponCycle;
+            @WeaponCycle.performed += instance.OnWeaponCycle;
+            @WeaponCycle.canceled += instance.OnWeaponCycle;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -375,6 +423,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Heal.started -= instance.OnHeal;
             @Heal.performed -= instance.OnHeal;
             @Heal.canceled -= instance.OnHeal;
+            @WeaponCycle.started -= instance.OnWeaponCycle;
+            @WeaponCycle.performed -= instance.OnWeaponCycle;
+            @WeaponCycle.canceled -= instance.OnWeaponCycle;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -403,5 +454,6 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         void OnRun(InputAction.CallbackContext context);
         void OnScoreboard(InputAction.CallbackContext context);
         void OnHeal(InputAction.CallbackContext context);
+        void OnWeaponCycle(InputAction.CallbackContext context);
     }
 }

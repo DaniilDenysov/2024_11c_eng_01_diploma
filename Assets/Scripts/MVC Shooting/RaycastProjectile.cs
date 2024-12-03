@@ -47,7 +47,7 @@ namespace Shooting
             _renderer.endWidth = 0f;
             _renderer.material.color = new Color(initialColor.r, initialColor.g, initialColor.b, 0);
 
-            if (NetworkServer.active) NetworkServer.Destroy(gameObject);
+            Destroy(gameObject);
         }
     }
 }

@@ -16,19 +16,16 @@ MonoBehaviour:
     type: 3}
   projectile: {fileID: 2902638209561542010, guid: 88f0d78678d933a4db986125c98310ef,
     type: 3}
-  leftGrip: {x: 0, y: 0, z: 0}
-  rightGrip: {x: 0, y: 0, z: 0}
-  mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
   fireRate: 0.1
   damage: 10
   distance: 1000
   burst: 1
   bulletsPerShot: 1
   mode: 1
-  accuracy: 50
-  verticalRecoil: 1
-  horizontalRecoil: 0
-  rangeX: 0.05
-  rangeY: 0.05
   scopeTime: 3
   mag: {fileID: 11400000, guid: 321a724362cdcc043831aad74f390f71, type: 2}
+  recoilRecoverySpeed: 1
+  maxSpreadTime: 4
+  verticalRecoil: 4.5
+  horizontalRecoil: 1.2
+  spreadPattern: {fileID: 21300000, guid: 109ad81025637b148819dcf3d1a3f8a6, type: 3}
