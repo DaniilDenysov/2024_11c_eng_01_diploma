@@ -14,8 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Title: Deathmatch
   Description: 
+  RoundTime: 300
+  RoundDelay: 15
+  Rounds: 3
   teams:
-  - Guid: 
+  - Guid: Team A
     maxPlayerAmount: 5
-  - Guid: 
+  - Guid: Team B
     maxPlayerAmount: 5

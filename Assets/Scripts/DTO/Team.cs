@@ -7,14 +7,13 @@ using UnityEngine;
 [System.Serializable]
 public class Team
 {
-    [Mirror.ReadOnly] public string Guid;
-    public Color color;
+     public string Guid;
     [Range(0, 100)] public int maxPlayerAmount;
 
     public void Setup()
     {
-        Guid = System.Guid.NewGuid().ToString();
-        color = GenerateRandomColorAvoidingWhite();
+       if (string.IsNullOrWhiteSpace(Guid) || string.IsNullOrEmpty(Guid))  Guid = System.Guid.NewGuid().ToString();
+       // color = GenerateRandomColorAvoidingWhite();
     }
 
     private Color GenerateRandomColorAvoidingWhite()

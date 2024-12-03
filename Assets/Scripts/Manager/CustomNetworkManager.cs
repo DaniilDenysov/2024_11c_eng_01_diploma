@@ -10,6 +10,7 @@ using Steamworks;
 using UnityEngine.Events;
 using System.Threading.Tasks;
 using Score;
+using SynchronizedClock;
 
 namespace Managers  
 {
@@ -21,6 +22,9 @@ namespace Managers
         [Header("Team distribution settings")]
         [SerializeField] private TeamDistributionMode distributionMode = TeamDistributionMode.RoundRobin;
         private int roundRobinLastIndex = 0;
+
+
+        private int currentRound = 0;
 
         public enum TeamDistributionMode
         {
@@ -52,6 +56,7 @@ namespace Managers
                 Debug.LogError("Game mode is null!");
                 return;
             }
+            StartNewRound(0,gameModeSO.RoundTime);
             FormTeams();
         }
 
@@ -81,10 +86,10 @@ namespace Managers
         }
 
 
-        public Color GetTeamColor(string teamGuid)
+       /* public Color GetTeamColor(string teamGuid)
         {
             return gameModeSO.teams.FirstOrDefault((t) => t.Guid.Equals(teamGuid)).color;
-        }
+        }*/
 
         public string FindAvailableTeam()
         {
@@ -149,6 +154,15 @@ namespace Managers
             }
         }
 
+
+        #endregion
+
+        #region RoundHandling
+
+        private void StartNewRound (int delay, int roundTime)
+        {
+            SyncedClock.Instance.StartTimer(roundTime);
+        }
 
         #endregion
 

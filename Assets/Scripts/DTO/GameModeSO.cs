@@ -7,6 +7,9 @@ public class GameModeSO : ScriptableObject
 {
     public string Title;
     public string Description;
+    [Range(0,10000),Tooltip("Time in seconds")] public int RoundTime,RoundDelay;
+    [Range(0,100)] public int Rounds;
+
 
 #if UNITY_EDITOR
     private void OnEnable()
