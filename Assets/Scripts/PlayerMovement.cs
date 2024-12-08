@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using Mirror;
+using UnityEngine.Events;
 
 //change fields to private
 public class PlayerMovement : NetworkBehaviour
@@ -35,6 +36,13 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] public LayerMask whatIsGround;
     [SerializeField] public LayerMask wallsLayers;
     private bool isGrounded;
+    
+    [Header("Events")]
+    [SerializeField] public UnityEvent onPlayerSprinting;
+    [SerializeField] public UnityEvent onPlayerIdle;
+    [SerializeField] public UnityEvent onPlayerJumps;
+    [SerializeField] public UnityEvent onPlayerWalks;
+    [SerializeField] public UnityEvent onPlayerCrouching;
 
   //  public Transform orientation;
 
@@ -118,22 +126,31 @@ public class PlayerMovement : NetworkBehaviour
 
         if(isCrouching && isGrounded)
         {
+            onPlayerCrouching.Invoke();
             state = MovementState.crouching;
             movementSpeed = crouchSpeed;
         }
         else if(isGrounded && isSprinting && !isCrouching)
         {
+            onPlayerSprinting.Invoke();
             state = MovementState.sprinting;
             movementSpeed = sprintSpeed;;
         }
         else if (isGrounded)
         {
+            onPlayerWalks.Invoke();
             state = MovementState.walking;
             movementSpeed = walkSpeed;
         }
         else
         {
+            onPlayerJumps.Invoke();
             state = MovementState.air;
+        }
+
+        if (horizontalInput == 0 && verticalInput == 0)
+        {
+            onPlayerIdle.Invoke();
         }
 
         if (horizontalInput != 0 && verticalInput != 0 && state != MovementState.air)
